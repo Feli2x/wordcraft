@@ -142,6 +142,28 @@ mod android {
             if inner.width() < 100.0 || inner.height() < 100.0 { full } else { inner }
         }
 
+        /// For testing: one line with the build and what the app measures (scale, width, night
+        /// mode, theme), so a screenshot shows which APK runs and why it looks as it does.
+        fn diagnostics(&self, ui: &egui::Ui, inner: egui::Rect) {
+            let ctx = ui.ctx().clone();
+            let text = format!(
+                "Build #{} | {:.2}x (System {:.2}x) | {:.0} pt breit | {} | {:?}",
+                option_env!("GITHUB_RUN_NUMBER").unwrap_or("lokal"),
+                ctx.pixels_per_point(),
+                ctx.native_pixels_per_point().unwrap_or(0.0),
+                inner.width(),
+                if self.night == Some(true) { "Android: Nacht" } else { "Android: Tag" },
+                ctx.theme(),
+            );
+            egui::Area::new(egui::Id::unique("android_diagnostics"))
+                .order(egui::Order::Tooltip)
+                .interactable(false)
+                .fixed_pos(inner.left_bottom() + egui::vec2(4.0, -16.0))
+                .show(&ctx, |ui| {
+                    ui.label(egui::RichText::new(text).size(10.0).color(egui::Color32::from_rgb(200, 0, 0)).background_color(egui::Color32::from_white_alpha(220)));
+                });
+        }
+
         fn save_prefs_if_changed(&mut self) {
             let Ok(json) = serde_json::to_string_pretty(&self.app.prefs()) else { return };
             if self.saved_prefs.as_deref() == Some(json.as_str()) {
@@ -190,6 +212,7 @@ mod android {
                 ui.painter().rect_filled(full, 0.0, ui.visuals().panel_fill);
             }
             self.mobile.ui(&mut self.app, ui, inner);
+            self.diagnostics(ui, inner);
             // The content rectangle changes without an input event (keyboard shown, rotation).
             ui.ctx().request_repaint_after(std::time::Duration::from_millis(500));
         }
@@ -203,6 +226,7 @@ mod android {
     #[unsafe(no_mangle)]
     fn android_main(android: AndroidApp) {
         android_logger::init_once(android_logger::Config::default().with_max_level(log::LevelFilter::Info).with_tag("WordCraft"));
+        log::info!("WordCraft Android build #{}", option_env!("GITHUB_RUN_NUMBER").unwrap_or("local"));
         let folders = set_up_folders(&android);
         let activity = android.clone();
         let options = eframe::NativeOptions { android_app: Some(android), ..Default::default() };
