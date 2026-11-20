@@ -22,6 +22,13 @@ tap() {
 }
 type_text() { adb shell input text "$(printf %s "$1" | sed 's/ /%s/g')"; }
 
+# Diagnostics need root (ANR traces, native stacks); the google_apis emulator allows it.
+adb root >/dev/null 2>&1 && sleep 3
+# Software rendering (SwiftShader) is slow at 1080x2400: the same 411 dp wide layout at fewer pixels.
+adb shell wm size 720x1600
+adb shell wm density 280
+# A freshly booted emulator keeps the CPU busy for a while (package scans, first-run services).
+sleep 45
 adb install -r "$APK"
 adb shell cmd uimode night no
 adb shell settings put system accelerometer_rotation 0
@@ -30,6 +37,14 @@ adb logcat -c
 adb shell am start -W -n "$PKG/android.app.NativeActivity"
 sleep 20
 shot start-page
+
+# What has the focus, and what the app's threads are doing, before the first key.
+{
+    echo "== focus"; adb shell dumpsys window | grep -E "mCurrentFocus|mFocusedApp"
+    echo "== activity"; adb shell dumpsys activity activities | grep -E "ResumedActivity|mFocusedApp" | head -5
+    pid=$(adb shell pidof "$PKG")
+    echo "== pid $pid threads"; adb shell debuggerd -b "$pid" 2>&1 | head -400
+} > "$OUT/state-before-first-key.txt" 2>&1
 
 # Escape closes the File page (the start page) and shows the blank document.
 adb shell input keyevent 111
@@ -111,6 +126,7 @@ shot landscape
 adb shell settings put system user_rotation 0
 sleep 4
 
+adb pull /data/anr "$OUT/anr" >/dev/null 2>&1 || true
 adb logcat -d -s WordCraft:* > "$OUT/logcat-wordcraft.txt"
 adb logcat -d -b crash > "$OUT/logcat-crash.txt" || true
 adb logcat -d > "$OUT/logcat-all.txt"
