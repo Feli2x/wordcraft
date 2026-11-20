@@ -29,6 +29,12 @@ adb shell wm size 720x1600
 adb shell wm density 280
 # A freshly booted emulator keeps the CPU busy for a while (package scans, first-run services).
 sleep 45
+# The launcher is not needed (the app is started directly) and, starved by the software renderer,
+# it showed "isn't responding" dialogs that swallowed the test's keys (run 23).
+for launcher in $(adb shell cmd package query-activities --brief -a android.intent.action.MAIN -c android.intent.category.HOME | grep / | cut -d/ -f1 | sort -u); do
+    adb shell pm disable-user --user 0 "$launcher" >/dev/null 2>&1 && echo "launcher $launcher disabled"
+done
+adb shell settings put global hide_error_dialogs 1
 adb install -r "$APK"
 adb shell cmd uimode night no
 adb shell settings put system accelerometer_rotation 0
@@ -46,9 +52,17 @@ shot start-page
     echo "== pid $pid threads"; adb shell debuggerd -b "$pid" 2>&1 | head -400
 } > "$OUT/state-before-first-key.txt" 2>&1
 
-# Escape closes the File page (the start page) and shows the blank document.
-adb shell input keyevent 111
-sleep 5
+# The document state the app logged last ("autotest doc ...").
+doc() { adb logcat -d -s WordCraft:I | grep "autotest doc" | tail -1 | sed -E 's/.*autotest doc //'; }
+
+# Escape closes the File page (the start page); with no document open the phone editor starts a
+# blank one. Tried again if a system dialog took the key.
+for attempt in 1 2 3; do
+    adb shell input keyevent 111
+    sleep 5
+    case "$(doc)" in *fullScreenView=true*) break ;; esac
+    echo "phone editor not shown after Escape (attempt $attempt): $(doc)"
+done
 shot phone-editor
 
 # Tap into the page, halfway between the top bar and the toolbar: the caret is placed and the
