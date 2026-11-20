@@ -16,9 +16,14 @@
 //!   running its exit path.
 //! - System bars: the NativeActivity draws under the status and navigation bars, so the app is
 //!   laid out in the activity's content rectangle (which also shrinks for the on-screen keyboard).
+//! - Phones get their own layout (see `mobile`): the document wrapped to the screen with a bar of
+//!   large buttons above it and a floating toolbar below; tablets keep the desktop interface.
 //! - Text input: hardware keyboards work fully; the on-screen keyboard is shown when a text field
 //!   or the page takes focus, but a NativeActivity only receives plain key events from it (no
 //!   autocorrect or swipe typing).
+
+#[cfg_attr(not(target_os = "android"), allow(dead_code))]
+mod mobile;
 
 #[cfg(target_os = "android")]
 mod android {
@@ -102,6 +107,8 @@ mod android {
         app: WordApp,
         /// The activity, for its content rectangle (the area the system bars leave free).
         android: AndroidApp,
+        /// The phone layout around the app.
+        mobile: crate::mobile::Mobile,
         prefs_path: PathBuf,
         /// The preferences as last written, to write only when they change.
         saved_prefs: Option<String>,
@@ -162,7 +169,7 @@ mod android {
                 // Under the system bars: the window's own colour, so their icons stay legible.
                 ui.painter().rect_filled(full, 0.0, ui.visuals().panel_fill);
             }
-            ui.scope_builder(egui::UiBuilder::new().max_rect(inner), |ui| self.app.ui(ui));
+            self.mobile.ui(&mut self.app, ui, inner);
             // The content rectangle changes without an input event (keyboard shown, rotation).
             ui.ctx().request_repaint_after(std::time::Duration::from_millis(500));
         }
@@ -201,7 +208,7 @@ mod android {
                 }
                 app.start_screen();
                 let saved_prefs = serde_json::to_string_pretty(&app.prefs()).ok();
-                Ok(Box::new(Shell { app, android: activity, prefs_path: folders.prefs.clone(), saved_prefs, last_prefs_check: 0.0 }))
+                Ok(Box::new(Shell { app, android: activity, mobile: Default::default(), prefs_path: folders.prefs.clone(), saved_prefs, last_prefs_check: 0.0 }))
             }),
         );
         if let Err(e) = result {
