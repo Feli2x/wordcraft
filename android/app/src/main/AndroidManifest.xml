@@ -22,6 +22,15 @@
         android:requestLegacyExternalStorage="true"
         android:theme="@android:style/Theme.DeviceDefault.NoActionBar">
 
+        <!-- Samsung DeX: keep the app running (not restarted) when it moves between the phone's
+             screen and the DeX desktop, whose density differs. -->
+        <meta-data
+            android:name="com.samsung.android.keepalive.density"
+            android:value="true" />
+        <meta-data
+            android:name="com.samsung.android.multidisplay.keep_process_alive"
+            android:value="true" />
+
         <activity
             android:name="android.app.NativeActivity"
             android:exported="true"
@@ -32,6 +41,12 @@
             <meta-data
                 android:name="android.app.lib_name"
                 android:value="wordcraft_android" />
+            <!-- Samsung DeX and other desktop modes: open as a window of this size, resizable. -->
+            <layout
+                android:defaultWidth="1280dp"
+                android:defaultHeight="800dp"
+                android:minWidth="360dp"
+                android:minHeight="400dp" />
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
