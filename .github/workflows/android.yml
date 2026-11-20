@@ -1,0 +1,80 @@
+# Builds an installable WordCraft APK (arm64) for Android phones and tablets.
+# Runs when the Android files change (on any branch) or from the Actions tab (Run workflow); the
+# APK is attached to the run as the artifact "wordcraft-android-apk".
+name: Android APK
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "apps/wordcraft-android/**"
+      - "android/**"
+      - "crates/fonts/src/fontdb/names.rs"
+      - ".github/workflows/android.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  apk:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 150
+    env:
+      CRAFT_I18N_DIR: ${{ github.workspace }}/../craft-i18n
+      CRAFT_FONTS_DIR: ${{ github.workspace }}/../craft-fonts
+      # Same craft-fonts commit as release.yml.
+      CRAFT_FONTS_REF: b076417b5880bd4154bd22f00695b1d28c6bea83
+      # 16 KB pages (Android 15 devices): align the library's segments for them.
+      CARGO_TARGET_AARCH64_LINUX_ANDROID_RUSTFLAGS: "-C link-arg=-Wl,-z,max-page-size=16384"
+    steps:
+      - uses: actions/checkout@v4
+
+      # The interface translations (German menus) and the spelling and hyphenation data, at the
+      # commit every official release uses; without them WordCraft is English-only.
+      - name: Fetch craft-i18n and craft-fonts
+        run: |
+          fetch() { # repo dir sha
+            git init -q "$2"
+            git -C "$2" fetch -q --depth 1 "https://github.com/storytold/$1" "$3"
+            git -C "$2" checkout -q FETCH_HEAD
+          }
+          fetch craft-i18n "$CRAFT_I18N_DIR" "$(cat craft-i18n.rev)"
+          fetch craft-fonts "$CRAFT_FONTS_DIR" "$CRAFT_FONTS_REF"
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-linux-android
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: android
+
+      - name: Install cargo-ndk
+        run: cargo install cargo-ndk --locked
+
+      - name: Build libwordcraft_android.so
+        env:
+          ANDROID_NDK_HOME: ${{ env.ANDROID_NDK_LATEST_HOME }}
+        run: |
+          cargo ndk -t arm64-v8a -P 26 -o android/app/src/main/jniLibs \
+            build -p wordcraft-android --release
+          ls -la android/app/src/main/jniLibs/arm64-v8a
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.11.1"
+
+      - name: Package the APK
+        working-directory: android
+        run: gradle --no-daemon assembleRelease
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: wordcraft-android-apk
+          path: android/app/build/outputs/apk/release/*.apk
+          if-no-files-found: error
