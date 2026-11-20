@@ -182,6 +182,23 @@ index 3d097d8..051262d 100644
      } else {
          dirs.extend(["/usr/share/fonts", "/usr/local/share/fonts"].map(Into::into));
          if let Some(h) = &home {
+diff --git a/crates/ui-egui/src/app/prefs.rs b/crates/ui-egui/src/app/prefs.rs
+index 7f1ffb7..458611e 100644
+--- a/crates/ui-egui/src/app/prefs.rs
++++ b/crates/ui-egui/src/app/prefs.rs
+@@ -120,6 +120,12 @@ impl WordApp {
+     /// full screen gives the window back its earlier size and place: the system keeps them, and
+     /// [`window_geometry`] never saves a full-screen size (#980).
+     pub(crate) fn sync_full_screen(&mut self, ctx: &egui::Context) {
++        // Android: the app always fills its window and the system reports no full-screen state
++        // of its own, so Full Screen, Focus and Full Screen View stay WordCraft's views alone
++        // (following the window would switch them off again).
++        if cfg!(target_os = "android") {
++            return;
++        }
+         let v = &self.session.view;
+         let want = v.full_screen || v.focus_mode || v.full_screen_view;
+         let seen = ctx.input(|i| i.viewport().fullscreen);
 diff --git a/crates/ui-egui/src/theme.rs b/crates/ui-egui/src/theme.rs
 index 25a3421..dea2d42 100644
 --- a/crates/ui-egui/src/theme.rs

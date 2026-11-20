@@ -13,7 +13,9 @@
 //! take focus when tapped, and the page takes it back when tapped.
 //!
 //! For the emulator test (android/test), every button's centre is logged in pixels whenever the
-//! layout changes (`autotest button <name> <x> <y>`), so a script can tap it.
+//! layout changes (`autotest button <name> <x> <y>`), so a script can tap it, and so are the
+//! document's text and the formatting at the caret (`autotest doc ...`), so the test can check
+//! typing and Bold without reading pixels.
 
 use egui::{Align2, Color32, CornerRadius, Rect, Sense, Stroke, Ui, UiBuilder, Vec2, pos2, vec2};
 use serde_json::{Value, json};
@@ -76,6 +78,8 @@ pub struct Mobile {
     logged: String,
     /// Button centres (name, point) gathered while drawing, logged when they change.
     buttons: Vec<(&'static str, egui::Pos2)>,
+    /// The document state as last logged for the emulator test.
+    logged_doc: String,
 }
 
 impl Mobile {
@@ -95,6 +99,25 @@ impl Mobile {
             Shown::Phone => self.phone_ui(app, ui, area),
         }
         self.log_buttons(ui.ctx().pixels_per_point());
+        self.log_doc(app);
+    }
+
+    /// Log the body text and the formatting at the caret when they change (for android/test).
+    fn log_doc(&mut self, app: &mut WordApp) {
+        let state: Value = app.session.run("format.state", &json!({})).unwrap_or_default();
+        let on = |k: &str| state.get(k).and_then(Value::as_bool).unwrap_or(false);
+        let line = format!(
+            "autotest doc bold={} italic={} underline={} fullScreenView={} text={:?}",
+            on("bold"),
+            on("italic"),
+            on("underline"),
+            app.session.view.full_screen_view,
+            app.session.doc.plain_text(wordcraft_doc::StoryRef::Body),
+        );
+        if line != self.logged_doc {
+            log::info!("{line}");
+            self.logged_doc = line;
+        }
     }
 
     /// Set the views each layout needs when the screen changes between them.

@@ -51,9 +51,12 @@ adb shell input keyevent 111
 sleep 5
 shot phone-editor
 
-# Tap into the page: the caret is placed and the on-screen keyboard opens.
+# Tap into the page, halfway between the top bar and the toolbar: the caret is placed and the
+# on-screen keyboard opens.
 read -r W H < <(adb shell wm size | tail -1 | sed -E 's/.*: ([0-9]+)x([0-9]+).*/\1 \2/')
-adb shell input tap $((W / 2)) $((H / 5))
+read -r _ TOP < <(button file)
+read -r _ BOTTOM < <(button bold)
+adb shell input tap $((W / 2)) $(( (${TOP:-200} + ${BOTTOM:-1200}) / 3 ))
 sleep 4
 shot keyboard-open
 
@@ -127,6 +130,8 @@ adb shell settings put system user_rotation 0
 sleep 4
 
 adb pull /data/anr "$OUT/anr" >/dev/null 2>&1 || true
+# The document after each step, as the app logged it (text and formatting at the caret).
+adb logcat -d -s WordCraft:I | grep "autotest doc" > "$OUT/doc-states.txt" || true
 adb logcat -d -s WordCraft:* > "$OUT/logcat-wordcraft.txt"
 adb logcat -d -b crash > "$OUT/logcat-crash.txt" || true
 adb logcat -d > "$OUT/logcat-all.txt"
