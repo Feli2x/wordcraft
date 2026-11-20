@@ -14,6 +14,8 @@
 //! - Preferences (`ui.json`) and crash recovery live in the app's private data folder;
 //!   preferences are written whenever they change, because Android may stop the app without
 //!   running its exit path.
+//! - System bars: the NativeActivity draws under the status and navigation bars, so the app is
+//!   laid out in the activity's content rectangle (which also shrinks for the on-screen keyboard).
 //! - Text input: hardware keyboards work fully; the on-screen keyboard is shown when a text field
 //!   or the page takes focus, but a NativeActivity only receives plain key events from it (no
 //!   autocorrect or swipe typing).
@@ -98,6 +100,8 @@ mod android {
 
     struct Shell {
         app: WordApp,
+        /// The activity, for its content rectangle (the area the system bars leave free).
+        android: AndroidApp,
         prefs_path: PathBuf,
         /// The preferences as last written, to write only when they change.
         saved_prefs: Option<String>,
@@ -105,6 +109,23 @@ mod android {
     }
 
     impl Shell {
+        /// The part of `full` (the whole window, in points) the status bar, the navigation bar
+        /// and the on-screen keyboard leave free: the activity's content rectangle (in pixels).
+        fn safe_area(&self, full: egui::Rect, pixels_per_point: f32) -> egui::Rect {
+            let r = self.android.content_rect();
+            if r.right <= r.left || r.bottom <= r.top || pixels_per_point <= 0.0 {
+                return full;
+            }
+            let ppp = pixels_per_point;
+            let (w, h) = (full.width() * ppp, full.height() * ppp);
+            let left = (r.left as f32).clamp(0.0, w) / ppp;
+            let top = (r.top as f32).clamp(0.0, h) / ppp;
+            let right = (w - r.right as f32).clamp(0.0, w) / ppp;
+            let bottom = (h - r.bottom as f32).clamp(0.0, h) / ppp;
+            let inner = egui::Rect::from_min_max(full.min + egui::vec2(left, top), full.max - egui::vec2(right, bottom));
+            if inner.width() < 100.0 || inner.height() < 100.0 { full } else { inner }
+        }
+
         fn save_prefs_if_changed(&mut self) {
             let Ok(json) = serde_json::to_string_pretty(&self.app.prefs()) else { return };
             if self.saved_prefs.as_deref() == Some(json.as_str()) {
@@ -135,7 +156,15 @@ mod android {
         }
 
         fn ui(&mut self, ui: &mut egui::Ui, _frame: &mut eframe::Frame) {
-            self.app.ui(ui);
+            let full = ui.max_rect();
+            let inner = self.safe_area(full, ui.ctx().pixels_per_point());
+            if inner != full {
+                // Under the system bars: the window's own colour, so their icons stay legible.
+                ui.painter().rect_filled(full, 0.0, ui.visuals().panel_fill);
+            }
+            ui.scope_builder(egui::UiBuilder::new().max_rect(inner), |ui| self.app.ui(ui));
+            // The content rectangle changes without an input event (keyboard shown, rotation).
+            ui.ctx().request_repaint_after(std::time::Duration::from_millis(500));
         }
 
         fn on_exit(&mut self) {
@@ -148,6 +177,7 @@ mod android {
     fn android_main(android: AndroidApp) {
         android_logger::init_once(android_logger::Config::default().with_max_level(log::LevelFilter::Info).with_tag("WordCraft"));
         let folders = set_up_folders(&android);
+        let activity = android.clone();
         let options = eframe::NativeOptions { android_app: Some(android), ..Default::default() };
         let result = eframe::run_native(
             "WordCraft",
@@ -171,7 +201,7 @@ mod android {
                 }
                 app.start_screen();
                 let saved_prefs = serde_json::to_string_pretty(&app.prefs()).ok();
-                Ok(Box::new(Shell { app, prefs_path: folders.prefs.clone(), saved_prefs, last_prefs_check: 0.0 }))
+                Ok(Box::new(Shell { app, android: activity, prefs_path: folders.prefs.clone(), saved_prefs, last_prefs_check: 0.0 }))
             }),
         );
         if let Err(e) = result {
