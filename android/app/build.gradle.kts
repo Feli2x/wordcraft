@@ -19,7 +19,8 @@ android {
         versionCode = (System.getenv("GITHUB_RUN_NUMBER") ?: "1").toInt()
         versionName = "0.18.1-android"
         ndk {
-            abiFilters += listOf("arm64-v8a")
+            // arm64 for phones; the emulator test builds x86_64 (gradle -Pabis=x86_64).
+            abiFilters += ((project.findProperty("abis") as String?) ?: "arm64-v8a").split(",")
         }
     }
 
