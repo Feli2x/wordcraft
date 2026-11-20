@@ -6,6 +6,14 @@
 //!
 //! Everything here goes through `WordApp::run` (the commands the ribbon uses), so it needs no
 //! change to WordCraft itself. Kept free of Android types, so it builds (and is checked) anywhere.
+//!
+//! The page keeps the keyboard while the bars are tapped: egui normally takes focus away from a
+//! widget when the pointer clicks elsewhere, which on a phone closes the on-screen keyboard and
+//! drops a pending format (Bold, then type). The phone layout turns that off; text fields still
+//! take focus when tapped, and the page takes it back when tapped.
+//!
+//! For the emulator test (android/test), every button's centre is logged in pixels whenever the
+//! layout changes (`autotest button <name> <x> <y>`), so a script can tap it.
 
 use egui::{Align2, Color32, CornerRadius, Rect, Sense, Stroke, Ui, UiBuilder, Vec2, pos2, vec2};
 use serde_json::{Value, json};
@@ -64,6 +72,10 @@ pub struct Mobile {
     all_commands: bool,
     menu: Option<Menu>,
     shown: Option<Shown>,
+    /// The button positions as last logged for the emulator test.
+    logged: String,
+    /// Button centres (name, point) gathered while drawing, logged when they change.
+    buttons: Vec<(&'static str, egui::Pos2)>,
 }
 
 impl Mobile {
@@ -71,7 +83,8 @@ impl Mobile {
     pub fn ui(&mut self, app: &mut WordApp, ui: &mut Ui, area: Rect) {
         let phone = area.width() < PHONE_WIDTH;
         let shown = if phone && !self.all_commands && !app.ui.backstage { Shown::Phone } else { Shown::Desktop };
-        self.switch(app, shown, phone);
+        self.switch(app, ui.ctx(), shown, phone);
+        self.buttons.clear();
         match shown {
             Shown::Desktop => {
                 ui.scope_builder(UiBuilder::new().max_rect(area), |ui| app.ui(ui));
@@ -81,13 +94,17 @@ impl Mobile {
             }
             Shown::Phone => self.phone_ui(app, ui, area),
         }
+        self.log_buttons(ui.ctx().pixels_per_point());
     }
 
     /// Set the views each layout needs when the screen changes between them.
-    fn switch(&mut self, app: &mut WordApp, shown: Shown, phone: bool) {
+    fn switch(&mut self, app: &mut WordApp, ctx: &egui::Context, shown: Shown, phone: bool) {
         if self.shown == Some(shown) {
             return;
         }
+        // Taps on the bars must not take the keyboard from the page (see the module docs).
+        let surrender = if shown == Shown::Phone { egui::SurrenderFocusOn::Never } else { egui::SurrenderFocusOn::default() };
+        ctx.options_mut(|o| o.input_options.surrender_focus_on = surrender);
         let first = self.shown.is_none();
         self.shown = Some(shown);
         self.menu = None;
@@ -109,6 +126,14 @@ impl Mobile {
     }
 
     fn phone_ui(&mut self, app: &mut WordApp, ui: &mut Ui, area: Rect) {
+        // Kept every frame, not only on entry: the File page, Escape or a ribbon command may
+        // leave Full Screen View or Web Layout, and the phone editor needs both.
+        if format!("{:?}", app.session.view.mode) != "Web" {
+            let _ = app.run("view.webLayout", json!({}));
+        }
+        if !app.session.view.full_screen_view {
+            let _ = app.run("view.fullScreenView", json!({"value": true}));
+        }
         let top = Rect::from_min_max(area.min, pos2(area.max.x, area.min.y + BAR));
         let toolbar = Rect::from_min_max(pos2(area.min.x + MARGIN, area.max.y - MARGIN - TOOLBAR), pos2(area.max.x - MARGIN, area.max.y - MARGIN));
         // The document: from under the top bar (Full Screen View's own bar slides under it) to
@@ -126,12 +151,14 @@ impl Mobile {
             ui.painter().line_segment([top.left_bottom(), top.right_bottom()], Stroke::new(1.0, ui.visuals().widgets.noninteractive.bg_stroke.color));
             let mut x = top.min.x + 4.0;
             let y = top.center().y;
+            self.buttons.push(("file", pos2(x + 40.0, y)));
             if text_button(ui, Rect::from_center_size(pos2(x + 40.0, y), vec2(80.0, BUTTON)), "Datei", fg).clicked() {
                 let _ = app.run("ui.backstage", json!({"value": true, "page": "home"}));
             }
             x = top.max.x - 4.0 - BUTTON / 2.0;
             for (icon, label, cmd) in [("more", "Alle Befehle", ""), ("save", "Speichern", "file.save"), ("redo", "Wiederholen", "edit.redo"), ("undo", "Rückgängig", "edit.undo")] {
                 let r = Rect::from_center_size(pos2(x, y), Vec2::splat(BUTTON));
+                self.buttons.push((icon, r.center()));
                 if icon_button(ui, r, icon, label, false, fg, accent).clicked() {
                     if cmd.is_empty() {
                         self.all_commands = true;
@@ -159,6 +186,7 @@ impl Mobile {
             let step = toolbar.width() / items.len() as f32;
             for (i, (icon, label, cmd, active)) in items.into_iter().enumerate() {
                 let r = Rect::from_center_size(pos2(toolbar.min.x + step * (i as f32 + 0.5), toolbar.center().y), Vec2::splat(BUTTON.min(step)));
+                self.buttons.push((if i == 6 { "toolbarMore" } else { icon }, r.center()));
                 if icon_button(ui, r, icon, label, active, fg, accent).clicked() {
                     match (i, cmd) {
                         (_, Some(cmd)) => {
@@ -189,6 +217,20 @@ impl Mobile {
         }
     }
 
+    /// Log every button's centre in screen pixels when the layout changes (for android/test).
+    fn log_buttons(&mut self, pixels_per_point: f32) {
+        let mut line = String::new();
+        for (name, p) in &self.buttons {
+            line.push_str(&format!("autotest button {name} {:.0} {:.0}\n", p.x * pixels_per_point, p.y * pixels_per_point));
+        }
+        if line != self.logged {
+            for l in line.lines() {
+                log::info!("{l}");
+            }
+            self.logged = line;
+        }
+    }
+
     fn toggle(&mut self, menu: Menu) {
         self.menu = if self.menu == Some(menu) { None } else { Some(menu) };
     }
@@ -207,6 +249,7 @@ impl Mobile {
                 let step = r.width() / items.len() as f32;
                 for (i, (icon, label, cmd, params)) in items.into_iter().enumerate() {
                     let cell = Rect::from_center_size(pos2(r.min.x + step * (i as f32 + 0.5), y), vec2(step - 4.0, r.height() - 8.0));
+                    self.buttons.push((icon, cell.center()));
                     let resp = ui.allocate_rect(cell, Sense::click());
                     if resp.hovered() || resp.is_pointer_button_down_on() {
                         ui.painter().rect_filled(cell, 8.0, accent.gamma_multiply(0.3));
@@ -225,6 +268,7 @@ impl Mobile {
                 let step = r.width() / colors.len() as f32;
                 for (i, (name, c)) in colors.into_iter().enumerate() {
                     let cell = Rect::from_center_size(pos2(r.min.x + step * (i as f32 + 0.5), y), Vec2::splat(36.0));
+                    self.buttons.push((name, cell.center()));
                     let resp = ui.allocate_rect(cell, Sense::click());
                     if c == Color32::TRANSPARENT {
                         ui.painter().circle_stroke(cell.center(), 16.0, Stroke::new(2.0, fg));
@@ -254,6 +298,7 @@ impl Mobile {
     /// On a phone showing the full interface: a floating button back to the phone layout.
     fn phone_view_button(&mut self, ui: &mut Ui, area: Rect) {
         let r = Rect::from_min_size(pos2(area.max.x - 150.0 - MARGIN, area.max.y - 44.0 - 36.0), vec2(150.0, 44.0));
+        self.buttons.push(("phoneView", r.center()));
         egui::Area::new(egui::Id::unique("phone_view_button")).order(egui::Order::Foreground).fixed_pos(r.min).show(ui.ctx(), |ui| {
             let accent = ui.visuals().selection.bg_fill;
             let resp = ui.allocate_rect(r, Sense::click());
