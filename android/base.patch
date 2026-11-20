@@ -182,3 +182,19 @@ index 3d097d8..051262d 100644
      } else {
          dirs.extend(["/usr/share/fonts", "/usr/local/share/fonts"].map(Into::into));
          if let Some(h) = &home {
+diff --git a/crates/ui-egui/src/theme.rs b/crates/ui-egui/src/theme.rs
+index 25a3421..dea2d42 100644
+--- a/crates/ui-egui/src/theme.rs
++++ b/crates/ui-egui/src/theme.rs
+@@ -151,6 +151,11 @@ pub const AUTO_MIN_POINTS: (f32, f32) = (900.0, 460.0);
+ /// one that still leaves [`AUTO_MIN_POINTS`], so the ribbon and the window's controls stay on
+ /// screen. Never below 1.0, and unlimited when the screen size is unknown.
+ pub fn auto_scale_limit(screen_px: Option<(f32, f32)>) -> f32 {
++    // A phone is far smaller than AUTO_MIN_POINTS at its own density: the cap would draw desktop
++    // controls on it. Android apps keep the system's density (the phone layout fits the screen).
++    if cfg!(target_os = "android") {
++        return f32::INFINITY;
++    }
+     screen_px
+         .filter(|(w, h)| w.is_finite() && h.is_finite() && *w > 0.0 && *h > 0.0)
+         .map_or(f32::INFINITY, |(w, h)| (w / AUTO_MIN_POINTS.0).min(h / AUTO_MIN_POINTS.1).max(1.0))
