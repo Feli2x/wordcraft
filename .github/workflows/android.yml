@@ -29,6 +29,25 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # WordCraft changes daily and its newest code may not build for Android yet, so the APK is
+      # built from a tested WordCraft commit with this branch's Android files laid over it. To move
+      # on, raise WORDCRAFT_BASE and regenerate android/base.patch (Cargo.lock and fonts) for it.
+      - name: Check out the tested WordCraft base
+        env:
+          WORDCRAFT_BASE: 09faec42ecf6eabe1fe3765fb10a0ac5d51be863
+        run: |
+          ov="$RUNNER_TEMP/overlay"
+          mkdir -p "$ov"
+          cp -r android apps/wordcraft-android "$ov/"
+          git fetch -q --depth 1 origin "$WORDCRAFT_BASE"
+          git checkout -q --force FETCH_HEAD
+          git clean -qfdx
+          rm -rf android apps/wordcraft-android
+          cp -r "$ov/android" android
+          cp -r "$ov/wordcraft-android" apps/wordcraft-android
+          git apply android/base.patch
+          git status --short
+
       # The interface translations (German menus) and the spelling and hyphenation data, at the
       # commit every official release uses; without them WordCraft is English-only.
       - name: Fetch craft-i18n and craft-fonts
