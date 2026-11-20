@@ -94,12 +94,28 @@ jobs:
         with:
           gradle-version: "8.11.1"
 
+      # One signing key for every build, so a new APK installs over the old one (Android refuses
+      # an update signed with another key). It lives in this repository's Actions cache, which
+      # only its workflows can read, never in the repository. The first run creates it; a cache
+      # entry unused for 7 days is dropped, and the next APK then needs one reinstall.
+      - name: Signing key (Actions cache)
+        id: signing-key
+        uses: actions/cache@v4
+        with:
+          path: android/wordcraft.keystore
+          key: wordcraft-signing-key-v1
+
+      - name: Create the signing key (first run only)
+        if: steps.signing-key.outputs.cache-hit != 'true'
+        run: |
+          keytool -genkeypair -keystore android/wordcraft.keystore -storetype PKCS12 \
+            -alias wordcraft -keyalg RSA -keysize 2048 -validity 10000 \
+            -storepass wordcraft-android -keypass wordcraft-android \
+            -dname "CN=WordCraft Android (personal build)"
+
       - name: Package the APK
         working-directory: android
-        run: |
-          # The fixed signing key (see app/build.gradle.kts), so new APKs install as updates.
-          base64 -d keystore.b64 > wordcraft.keystore
-          gradle --no-daemon assembleRelease
+        run: gradle --no-daemon assembleRelease
 
       - uses: actions/upload-artifact@v4
         with:
