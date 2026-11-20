@@ -88,6 +88,33 @@ mod android {
         Folders { prefs: config.join("ui.json"), recovery: internal.join("recovery") }
     }
 
+    /// The Android emulator's Vulkan (software rendering through the host) hangs wgpu at start-up;
+    /// its OpenGL ES works. Phones keep wgpu's own choice (Vulkan). `adb shell setprop
+    /// debug.wordcraft.wgpu gl` (or `vulkan`) overrides the choice on any device.
+    fn choose_graphics_backend() {
+        let prop = |name: &str| {
+            std::process::Command::new("/system/bin/getprop")
+                .arg(name)
+                .output()
+                .map(|o| String::from_utf8_lossy(&o.stdout).trim().to_string())
+                .unwrap_or_default()
+        };
+        let wanted = prop("debug.wordcraft.wgpu");
+        let emulator = prop("ro.kernel.qemu") == "1" || prop("ro.boot.qemu") == "1" || prop("ro.hardware").contains("ranchu");
+        let backend = if !wanted.is_empty() {
+            Some(wanted)
+        } else if emulator {
+            Some("gl".to_string())
+        } else {
+            None
+        };
+        if let Some(backend) = backend {
+            log::info!("graphics backend: {backend} (emulator: {emulator})");
+            // SAFETY: as in set_up_folders, before eframe or any of our threads start.
+            unsafe { std::env::set_var("WGPU_BACKEND", backend) };
+        }
+    }
+
     /// A NativeActivity has no system file dialog: answer every request with "unavailable", so
     /// the app shows its built-in file browser (#576), which then finishes the job.
     fn builtin_browser_hook() -> Box<dyn Fn(FileDialogRequest) -> mpsc::Receiver<FileDialogAnswer>> {
@@ -227,17 +254,21 @@ mod android {
     fn android_main(android: AndroidApp) {
         android_logger::init_once(android_logger::Config::default().with_max_level(log::LevelFilter::Info).with_tag("WordCraft"));
         log::info!("WordCraft Android build #{}", option_env!("GITHUB_RUN_NUMBER").unwrap_or("local"));
+        choose_graphics_backend();
         let folders = set_up_folders(&android);
         let activity = android.clone();
         let options = eframe::NativeOptions { android_app: Some(android), ..Default::default() };
+        log::info!("start-up: starting eframe");
         let result = eframe::run_native(
             "WordCraft",
             options,
             Box::new(move |cc| {
+                log::info!("start-up: window and graphics ready, creating the app");
                 let region = wordcraft_ui_egui::i18n::system_region();
                 let mut session = Session::new(wordcraft_engine::blank_document(&region));
                 session.system_region = region;
                 let mut app = WordApp::new(session, services());
+                log::info!("start-up: app created");
                 // No network use on Android: the update check's TLS verifier needs Java-side
                 // set-up a NativeActivity doesn't have.
                 app.disable_self_update();
