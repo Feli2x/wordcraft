@@ -1,0 +1,30 @@
+[package]
+name = "wordcraft-android"
+description = "WordCraft on Android (eframe on a NativeActivity, wgpu: Vulkan with GLES fallback)"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish = false
+
+# No `[lints] workspace = true`: the workspace forbids unsafe code, and Android's entry point
+# needs `#[unsafe(no_mangle)]` (as egui's own hello_android example does).
+
+[lib]
+name = "wordcraft_android"
+# cdylib: the libwordcraft_android.so the NativeActivity loads; lib: so `cargo check` on the
+# desktop still builds the (empty) crate.
+crate-type = ["cdylib", "lib"]
+
+[dependencies]
+wordcraft-doc = { workspace = true }
+wordcraft-engine = { workspace = true }
+wordcraft-ui-egui = { workspace = true }
+egui = { workspace = true }
+log = { workspace = true }
+serde_json = { workspace = true }
+
+[target.'cfg(target_os = "android")'.dependencies]
+eframe = { workspace = true, features = ["default_fonts", "wgpu", "android-native-activity"] }
+android_logger = "0.15"
+# AndroidApp, the NativeActivity handle eframe takes; patched to storytold/winit like the rest.
+winit = { version = "0.30", default-features = false, features = ["android-native-activity"] }
