@@ -18,6 +18,12 @@
 //!   laid out in the activity's content rectangle (which also shrinks for the on-screen keyboard).
 //! - Phones get their own layout (see `mobile`): the document wrapped to the screen with a bar of
 //!   large buttons above it and a floating toolbar below; tablets keep the desktop interface.
+//! - Scale: WordCraft's Auto interface size caps the scale so that 900x460 points fit the screen,
+//!   which on a phone means desktop-sized controls on a 6-inch screen. Android's own density is
+//!   used instead (the cap is lifted by hiding the monitor size); Options' Interface size still
+//!   scales from there.
+//! - Dark mode follows Android's (Settings › Display): the interface theme "System" gets Android's
+//!   answer, and pages turn dark with it (View › Switch Modes still changes that by hand).
 //! - Text input: hardware keyboards work fully; the on-screen keyboard is shown when a text field
 //!   or the page takes focus, but a NativeActivity only receives plain key events from it (no
 //!   autocorrect or swipe typing).
@@ -31,6 +37,7 @@ mod android {
     use std::sync::mpsc;
 
     use eframe::egui;
+    use serde_json::json;
     use wordcraft_engine::Session;
     use wordcraft_ui_egui::file_dialogs::{FileDialogAnswer, FileDialogRequest};
     use wordcraft_ui_egui::{Services, UiState, WordApp};
@@ -109,6 +116,8 @@ mod android {
         android: AndroidApp,
         /// The phone layout around the app.
         mobile: crate::mobile::Mobile,
+        /// Android's night mode as last applied, to switch the pages' dark mode when it changes.
+        night: Option<bool>,
         prefs_path: PathBuf,
         /// The preferences as last written, to write only when they change.
         saved_prefs: Option<String>,
@@ -159,6 +168,17 @@ mod android {
         }
 
         fn raw_input_hook(&mut self, ctx: &egui::Context, raw: &mut egui::RawInput) {
+            // Without a monitor size WordCraft's Auto size keeps Android's density (see above).
+            if let Some(viewport) = raw.viewports.get_mut(&raw.viewport_id) {
+                viewport.monitor_size = None;
+            }
+            // winit reports no theme on Android: give egui (and the "System" theme) Android's.
+            let night = format!("{:?}", self.android.config().ui_mode_night()) == "Yes";
+            raw.system_theme = Some(if night { egui::Theme::Dark } else { egui::Theme::Light });
+            if self.night != Some(night) {
+                self.night = Some(night);
+                let _ = self.app.run("view.darkMode", json!({"value": night}));
+            }
             self.app.raw_input_hook(ctx, raw);
         }
 
@@ -208,7 +228,7 @@ mod android {
                 }
                 app.start_screen();
                 let saved_prefs = serde_json::to_string_pretty(&app.prefs()).ok();
-                Ok(Box::new(Shell { app, android: activity, mobile: Default::default(), prefs_path: folders.prefs.clone(), saved_prefs, last_prefs_check: 0.0 }))
+                Ok(Box::new(Shell { app, android: activity, mobile: Default::default(), night: None, prefs_path: folders.prefs.clone(), saved_prefs, last_prefs_check: 0.0 }))
             }),
         );
         if let Err(e) = result {
