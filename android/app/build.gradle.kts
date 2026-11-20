@@ -15,18 +15,30 @@ android {
         // 34, not 35: Android 15 forces edge-to-edge drawing for apps targeting 35, which would
         // put WordCraft's ribbon under the status bar (winit has no safe-area insets on Android).
         targetSdk = 34
-        versionCode = 1
+        // Each CI run numbers its APK, so an install over an older one counts as an update.
+        versionCode = (System.getenv("GITHUB_RUN_NUMBER") ?: "1").toInt()
         versionName = "0.18.1-android"
         ndk {
             abiFilters += listOf("arm64-v8a")
         }
     }
 
+    // One fixed key for every build (android/wordcraft.keystore, kept in the Actions cache by the
+    // workflow), so a new APK installs over the old one: Android refuses an update signed with
+    // another key, and the runner's debug key is new on every run. A sideloading key, not a store's.
+    signingConfigs {
+        create("fork") {
+            storeFile = rootProject.file("wordcraft.keystore")
+            storePassword = "wordcraft-android"
+            keyAlias = "wordcraft"
+            keyPassword = "wordcraft-android"
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = false
-            // Signed with the debug key so the APK installs directly (sideloading, not the Play Store).
-            signingConfig = signingConfigs.getByName("debug")
+            signingConfig = signingConfigs.getByName(if (rootProject.file("wordcraft.keystore").exists()) "fork" else "debug")
         }
     }
 
