@@ -15,6 +15,11 @@ on:
 permissions:
   contents: read
 
+# A newer push cancels a build still running for an older one.
+concurrency:
+  group: android-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   apk:
     runs-on: ubuntu-24.04
@@ -91,7 +96,10 @@ jobs:
 
       - name: Package the APK
         working-directory: android
-        run: gradle --no-daemon assembleRelease
+        run: |
+          # The fixed signing key (see app/build.gradle.kts), so new APKs install as updates.
+          base64 -d keystore.b64 > wordcraft.keystore
+          gradle --no-daemon assembleRelease
 
       - uses: actions/upload-artifact@v4
         with:
