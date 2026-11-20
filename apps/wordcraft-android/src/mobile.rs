@@ -87,6 +87,15 @@ impl Mobile {
     pub fn ui(&mut self, app: &mut WordApp, ui: &mut Ui, area: Rect) {
         let phone = area.width() < PHONE_WIDTH;
         let shown = if phone && !self.all_commands && !app.ui.backstage { Shown::Phone } else { Shown::Desktop };
+        // Leaving the start page without choosing a document leaves none open, and the phone
+        // editor then has nothing to show (WordCraft's empty window with the ribbon): start a
+        // blank document instead, as the start page's own first choice does.
+        if shown == Shown::Phone
+            && !app.has_document()
+            && let Err(e) = app.run("file.new", json!({}))
+        {
+            log::warn!("no document and none could be created: {e}");
+        }
         self.switch(app, ui.ctx(), shown, phone);
         self.buttons.clear();
         match shown {
