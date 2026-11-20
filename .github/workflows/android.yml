@@ -1,6 +1,8 @@
 # Builds an installable WordCraft APK (arm64) for Android phones and tablets.
 # Runs when the Android files change (on any branch) or from the Actions tab (Run workflow); the
-# APK is attached to the run as the artifact "wordcraft-android-apk".
+# APK is attached to the run as the artifact "wordcraft-android-apk". A second job builds the app
+# for an x86_64 emulator, plays a scripted test on it (android/test/phone-test.sh) and publishes
+# the screenshots on the branch android-test-results (and as the artifact "emulator-test").
 name: Android APK
 
 on:
@@ -122,3 +124,107 @@ jobs:
           name: wordcraft-android-apk
           path: android/app/build/outputs/apk/release/*.apk
           if-no-files-found: error
+
+  emulator-test:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    permissions:
+      # Pushes the screenshots to the android-test-results branch (it holds no workflows).
+      contents: write
+    env:
+      CRAFT_I18N_DIR: ${{ github.workspace }}/../craft-i18n
+      CRAFT_FONTS_DIR: ${{ github.workspace }}/../craft-fonts
+      CRAFT_FONTS_REF: b076417b5880bd4154bd22f00695b1d28c6bea83
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check out the tested WordCraft base
+        env:
+          WORDCRAFT_BASE: 09faec42ecf6eabe1fe3765fb10a0ac5d51be863
+        run: |
+          ov="$RUNNER_TEMP/overlay"
+          mkdir -p "$ov"
+          cp -r android apps/wordcraft-android "$ov/"
+          git fetch -q --depth 1 origin "$WORDCRAFT_BASE"
+          git checkout -q --force FETCH_HEAD
+          git clean -qfdx
+          rm -rf android apps/wordcraft-android
+          cp -r "$ov/android" android
+          cp -r "$ov/wordcraft-android" apps/wordcraft-android
+          git apply android/base.patch
+
+      - name: Fetch craft-i18n and craft-fonts
+        run: |
+          fetch() { # repo dir sha
+            git init -q "$2"
+            git -C "$2" fetch -q --depth 1 "https://github.com/storytold/$1" "$3"
+            git -C "$2" checkout -q FETCH_HEAD
+          }
+          fetch craft-i18n "$CRAFT_I18N_DIR" "$(cat craft-i18n.rev)"
+          fetch craft-fonts "$CRAFT_FONTS_DIR" "$CRAFT_FONTS_REF"
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: x86_64-linux-android
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: android-x86_64
+
+      - name: Install cargo-ndk
+        run: cargo install cargo-ndk --locked
+
+      - name: Build libwordcraft_android.so (x86_64, for the emulator)
+        run: |
+          export ANDROID_NDK_HOME="${ANDROID_NDK_LATEST_HOME:-$ANDROID_NDK_ROOT}"
+          cargo ndk -t x86_64 -P 26 -o android/app/src/main/jniLibs build -p wordcraft-android --release
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.11.1"
+
+      - name: Package the test APK
+        working-directory: android
+        run: gradle --no-daemon assembleRelease -Pabis=x86_64
+
+      - name: Enable KVM for the emulator
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Run the phone test on an emulator (Pixel 6, Android 14)
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          arch: x86_64
+          target: google_apis
+          profile: pixel_6
+          disable-animations: true
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -no-snapshot
+          script: bash android/test/phone-test.sh android/app/build/outputs/apk/release/app-release.apk "$GITHUB_WORKSPACE/test-results"
+
+      - name: Publish the screenshots (branch android-test-results)
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p test-results
+          cd test-results
+          printf 'Emulator test of %s (run %s)\n' "${{ github.sha }}" "${{ github.run_number }}" > README.txt
+          git init -q
+          git checkout -q -b android-test-results
+          git add -A
+          git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" commit -qm "Emulator test, run ${{ github.run_number }}"
+          git push -qf "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}" HEAD:android-test-results
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: emulator-test
+          path: test-results
