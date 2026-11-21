@@ -14,13 +14,29 @@ shot() { n=$((n + 1)); adb exec-out screencap -p > "$OUT/$(printf %02d $n)-$1.pn
 # The last logged centre of a phone button, as "x y" (empty if it has not been drawn).
 button() { adb logcat -d -s WordCraft:I | grep "autotest button $1 " | tail -1 | awk '{print $(NF-1), $NF}'; }
 tap() {
+    dismiss_dialogs
     local xy
     xy=$(button "$1")
     if [ -z "$xy" ]; then echo "no button $1"; return 1; fi
     echo "tap $1 at $xy"
     adb shell input tap $xy
 }
-type_text() { adb shell input text "$(printf %s "$1" | sed 's/ /%s/g')"; }
+type_text() { dismiss_dialogs; adb shell input text "$(printf %s "$1" | sed 's/ /%s/g')"; }
+# If a system dialog has the focus instead of the app, tap its "Wait" (or "OK") button.
+dismiss_dialogs() {
+    local focus bounds
+    focus=$(adb shell dumpsys window | grep -m1 mCurrentFocus)
+    case "$focus" in *"$PKG"*) return 0 ;; esac
+    echo "focus not on the app: $focus"
+    adb shell uiautomator dump /sdcard/ui.xml >/dev/null 2>&1
+    bounds=$(adb shell cat /sdcard/ui.xml 2>/dev/null | grep -oE 'text="(Wait|OK)"[^>]*bounds="[^"]*"' | head -1 | grep -oE 'bounds="[^"]*"' | grep -oE '[0-9]+' | tr '\n' ' ')
+    if [ -n "$bounds" ]; then
+        set -- $bounds
+        echo "dialog answered at $(( ($1 + $3) / 2 )) $(( ($2 + $4) / 2 ))"
+        adb shell input tap $(( ($1 + $3) / 2 )) $(( ($2 + $4) / 2 ))
+        sleep 2
+    fi
+}
 
 # Diagnostics need root (ANR traces, native stacks); the google_apis emulator allows it.
 adb root >/dev/null 2>&1 && sleep 3
@@ -29,11 +45,9 @@ adb shell wm size 720x1600
 adb shell wm density 280
 # A freshly booted emulator keeps the CPU busy for a while (package scans, first-run services).
 sleep 45
-# The launcher is not needed (the app is started directly) and, starved by the software renderer,
-# it showed "isn't responding" dialogs that swallowed the test's keys (run 23).
-for launcher in $(adb shell cmd package query-activities --brief -a android.intent.action.MAIN -c android.intent.category.HOME | grep / | cut -d/ -f1 | sort -u); do
-    adb shell pm disable-user --user 0 "$launcher" >/dev/null 2>&1 && echo "launcher $launcher disabled"
-done
+# Starved by the software renderer, system apps may show "isn't responding" dialogs that take the
+# test's keys (run 23); they are hidden where the system allows it and answered "Wait" otherwise.
+# (Disabling the launcher instead made the system close the app at once, run 24.)
 adb shell settings put global hide_error_dialogs 1
 adb install -r "$APK"
 adb shell cmd uimode night no
@@ -58,6 +72,7 @@ doc() { adb logcat -d -s WordCraft:I | grep "autotest doc" | tail -1 | sed -E 's
 # Escape closes the File page (the start page); with no document open the phone editor starts a
 # blank one. Tried again if a system dialog took the key.
 for attempt in 1 2 3; do
+    dismiss_dialogs
     adb shell input keyevent 111
     sleep 5
     case "$(doc)" in *fullScreenView=true*) break ;; esac
