@@ -1,8 +1,9 @@
 //! The phone layout: the document on its own, wrapped to the screen's width (Web Layout in Full
 //! Screen View), a bar of large buttons along the top (File, Undo, Redo, Save, All commands) and a
 //! floating toolbar along the bottom (Insert, Bold, Italic, Underline, Highlight, Font Color,
-//! More), as Word's phone app does. Screens at least [`PHONE_WIDTH`] wide (tablets, landscape on
-//! large phones) keep the desktop interface; "⋯" on the phone shows it too, until "Phone view".
+//! More), as Word's phone app does. Screens whose shorter side is at least [`PHONE_WIDTH`]
+//! (tablets, a DeX window) keep the desktop interface; "⋯" on the phone shows it too, until
+//! "Phone view". A phone keeps the phone layout in landscape and with the keyboard open.
 //!
 //! Everything here goes through `WordApp::run` (the commands the ribbon uses), so it needs no
 //! change to WordCraft itself. Kept free of Android types, so it builds (and is checked) anywhere.
@@ -21,7 +22,7 @@ use egui::{Align2, Color32, CornerRadius, Rect, Sense, Stroke, Ui, UiBuilder, Ve
 use serde_json::{Value, json};
 use wordcraft_ui_egui::{WordApp, icons};
 
-/// Windows narrower than this (in points) get the phone layout.
+/// Screens whose shorter side is narrower than this (in points) get the phone layout.
 pub const PHONE_WIDTH: f32 = 600.0;
 /// The top bar's height and a button's side: Android's 48 dp touch target.
 const BAR: f32 = 52.0;
@@ -91,8 +92,10 @@ impl Mobile {
         Self { autotest, ..Default::default() }
     }
 
-    pub fn ui(&mut self, app: &mut WordApp, ui: &mut Ui, area: Rect) {
-        let phone = area.width() < PHONE_WIDTH;
+    /// `smallest_width`: the screen's shorter side in points, whichever way it is turned (the
+    /// area's width when unknown).
+    pub fn ui(&mut self, app: &mut WordApp, ui: &mut Ui, area: Rect, smallest_width: Option<f32>) {
+        let phone = smallest_width.unwrap_or(area.width()) < PHONE_WIDTH;
         let shown = if phone && !self.all_commands && !app.ui.backstage { Shown::Phone } else { Shown::Desktop };
         // Leaving the start page without choosing a document leaves none open, and the phone
         // editor then has nothing to show (WordCraft's empty window with the ribbon): start a

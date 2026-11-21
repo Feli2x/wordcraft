@@ -1,5 +1,5 @@
 diff --git a/Cargo.lock b/Cargo.lock
-index a720a0b..258e843 100644
+index a720a0b..e37bd8e 100644
 --- a/Cargo.lock
 +++ b/Cargo.lock
 @@ -216,6 +216,23 @@ version = "0.2.2"
@@ -142,7 +142,7 @@ index a720a0b..258e843 100644
  ]
  
  [[package]]
-@@ -7372,6 +7399,21 @@ dependencies = [
+@@ -7372,6 +7399,22 @@ dependencies = [
   "zbus",
  ]
  
@@ -153,6 +153,7 @@ index a720a0b..258e843 100644
 + "android_logger",
 + "eframe",
 + "egui",
++ "jni",
 + "log",
 + "serde_json",
 + "winit",
@@ -199,6 +200,28 @@ index 7f1ffb7..458611e 100644
          let v = &self.session.view;
          let want = v.full_screen || v.focus_mode || v.full_screen_view;
          let seen = ctx.input(|i| i.viewport().fullscreen);
+diff --git a/crates/ui-egui/src/canvas.rs b/crates/ui-egui/src/canvas.rs
+index 511af65..3cfd453 100644
+--- a/crates/ui-egui/src/canvas.rs
++++ b/crates/ui-egui/src/canvas.rs
+@@ -1206,9 +1206,14 @@ fn paint_pages(pass: PagePaint<'_>) -> PagePaintOutput {
+         let band = band_of(visual_sr);
+         let painter =
+             if band_top <= 0.0 && band_bot >= sr.height() { painter.clone() } else { painter.with_clip_rect(painter.clip_rect().intersect(band)) };
+-        // Shadow and paper.
+-        painter.rect_filled(visual_sr.translate(vec2(0.0, 2.0)).expand(1.5), 1.0, t.page_shadow);
+-        painter.rect_filled(visual_sr, 0.0, paper);
++        // Shadow and paper. On Android, Web Layout's sheet fills the work area (geometry.rs),
++        // beyond the rendered page: paper under all of it, and no shadow line under the text.
++        if cfg!(target_os = "android") && app.session.view.mode == wordcraft_layout::ViewMode::Web {
++            painter.rect_filled(sr.union(visual_sr), 0.0, paper);
++        } else {
++            painter.rect_filled(visual_sr.translate(vec2(0.0, 2.0)).expand(1.5), 1.0, t.page_shadow);
++            painter.rect_filled(visual_sr, 0.0, paper);
++        }
+         if tiled {
+             // Render before painting to keep the frame sharp immediately after an edit or
+             // zoom. Tiles are fixed to raster-pixel boundaries, independent of scrolling.
 diff --git a/crates/ui-egui/src/canvas/geometry.rs b/crates/ui-egui/src/canvas/geometry.rs
 index 589f0d3..fb87ea9 100644
 --- a/crates/ui-egui/src/canvas/geometry.rs

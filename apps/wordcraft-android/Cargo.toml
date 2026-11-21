@@ -22,6 +22,9 @@ wordcraft-ui-egui = { workspace = true }
 egui = { workspace = true }
 log = { workspace = true }
 serde_json = { workspace = true }
+# The activity's current night mode (night.rs); the version android-activity uses. Built on every
+# platform so the desktop check compiles night.rs too.
+jni = "0.22"
 
 [target.'cfg(target_os = "android")'.dependencies]
 eframe = { workspace = true, features = ["default_fonts", "wgpu", "android-native-activity"] }

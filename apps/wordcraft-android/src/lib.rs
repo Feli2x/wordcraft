@@ -29,6 +29,8 @@
 //!   autocorrect or swipe typing).
 
 #[cfg_attr(not(target_os = "android"), allow(dead_code))]
+mod config;
+#[cfg_attr(not(target_os = "android"), allow(dead_code))]
 mod mobile;
 
 #[cfg(target_os = "android")]
@@ -143,6 +145,9 @@ mod android {
         mobile: crate::mobile::Mobile,
         /// Android's night mode as last applied, to switch the pages' dark mode when it changes.
         night: Option<bool>,
+        /// The activity's current configuration (see `config.rs`), and when it was last read.
+        current: Option<crate::config::Current>,
+        last_night_check: f64,
         prefs_path: PathBuf,
         /// The preferences as last written, to write only when they change.
         saved_prefs: Option<String>,
@@ -218,7 +223,7 @@ mod android {
                 self.save_prefs_if_changed();
                 // For the emulator test: frames still run, and what Android's configuration says.
                 if self.mobile.autotest {
-                    log::info!("autotest alive night={:?} applied={:?}", self.android.config().ui_mode_night(), self.night);
+                    log::info!("autotest alive night={:?} java={:?} applied={:?}", self.android.config().ui_mode_night(), self.current, self.night);
                 }
             }
         }
@@ -229,7 +234,13 @@ mod android {
                 viewport.monitor_size = None;
             }
             // winit reports no theme on Android: give egui (and the "System" theme) Android's.
-            let night = format!("{:?}", self.android.config().ui_mode_night()) == "Yes";
+            let now = raw.time.unwrap_or(0.0);
+            if self.current.is_none() || now - self.last_night_check > 1.0 {
+                self.last_night_check = now;
+                // SAFETY: the activity of `self.android`, which the Shell keeps alive.
+                self.current = unsafe { crate::config::current(self.android.activity_as_ptr()) }.or(self.current);
+            }
+            let night = self.current.map_or_else(|| format!("{:?}", self.android.config().ui_mode_night()) == "Yes", |c| c.night);
             raw.system_theme = Some(if night { egui::Theme::Dark } else { egui::Theme::Light });
             if self.night != Some(night) {
                 if self.mobile.autotest {
@@ -248,7 +259,9 @@ mod android {
                 // Under the system bars: the window's own colour, so their icons stay legible.
                 ui.painter().rect_filled(full, 0.0, ui.visuals().panel_fill);
             }
-            self.mobile.ui(&mut self.app, ui, inner);
+            // dp are egui points here (WordCraft's scale follows Android's density, see above).
+            let smallest = self.current.map(|c| c.smallest_width_dp as f32);
+            self.mobile.ui(&mut self.app, ui, inner, smallest);
             self.diagnostics(ui, inner);
             // The content rectangle changes without an input event (keyboard shown, rotation).
             ui.ctx().request_repaint_after(std::time::Duration::from_millis(500));
@@ -300,6 +313,8 @@ mod android {
                     android: activity,
                     mobile: crate::mobile::Mobile::new(autotest),
                     night: None,
+                    current: None,
+                    last_night_check: 0.0,
                     prefs_path: folders.prefs.clone(),
                     saved_prefs,
                     last_prefs_check: 0.0,
