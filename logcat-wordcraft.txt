@@ -1,0 +1,391 @@
+--------- beginning of main
+11-21 13:16:05.511  5166  5196 I WordCraft: wordcraft_android::android: WordCraft Android build #39
+11-21 13:16:05.554  5166  5196 I WordCraft: wordcraft_android::android: graphics backend: gl (emulator: true)
+11-21 13:16:05.602  5166  5196 I WordCraft: wordcraft_android::android: HOME=/storage/emulated/0 internal=/data/user/0/ai.storyteller.wordcraft.android/files
+11-21 13:16:05.613  5166  5196 I WordCraft: wordcraft_android::android: start-up: starting eframe
+11-21 13:16:05.704  5166  5196 I WordCraft: wgpu_hal::gles::egl: EGL says it can present to the window but not natively
+11-21 13:16:06.154  5166  5196 W WordCraft: egui_wgpu: Software rasterizer detected - loss of performance expected. backend: Gl, device_type: Cpu, name: "Android Emulator OpenGL ES Translator (Google SwiftShader)", driver_info: "OpenGL ES 3.0 (OpenGL ES 3.0 SwiftShader 4.0.0.1)", subgroup_size: 4..=128, transient_saves_memory: None, limit_bucket: None
+11-21 13:16:06.350  5166  5196 I WordCraft: wordcraft_android::android: start-up: window and graphics ready, creating the app
+11-21 13:16:06.352  5166  5196 I WordCraft: wordcraft_android::android: start-up: app created
+11-21 13:16:06.354  5166  5196 I WordCraft: wordcraft_android::android: autotest night false
+11-21 13:16:06.716  5166  5196 I WordCraft: wordcraft_android::mobile: autotest doc bold=false italic=false underline=false fullScreenView=false text=""
+11-21 13:16:06.723  5166  5196 I WordCraft: wordcraft_android::android: autotest keyboard wanted=false
+11-21 13:16:08.749  5166  5196 I WordCraft: wordcraft_android::android: autotest alive night=No java=Some(Current { night: false, smallest_width_dp: 411 }) applied=Some(false)
+11-21 13:16:10.762  5166  5196 I WordCraft: wordcraft_android::android: autotest alive night=No java=Some(Current { night: false, smallest_width_dp: 411 }) applied=Some(false)
+11-21 13:16:12.766  5166  5196 I WordCraft: wordcraft_android::android: autotest alive night=No java=Some(Current { night: false, smallest_width_dp: 411 }) applied=Some(false)
+11-21 13:16:14.769  5166  5196 I WordCraft: wordcraft_android::android: autotest alive night=No java=Some(Current { night: false, smallest_width_dp: 411 }) applied=Some(false)
+11-21 13:16:16.772  5166  5196 I WordCraft: wordcraft_android::android: autotest alive night=No java=Some(Current { night: false, smallest_width_dp: 411 }) applied=Some(false)
+11-21 13:16:18.774  5166  5196 I WordCraft: wordcraft_android::android: autotest alive night=No java=Some(Current { night: false, smallest_width_dp: 411 }) applied=Some(false)
+11-21 13:16:20.778  5166  5196 I WordCraft: wordcraft_android::android: autotest alive night=No java=Some(Current { night: false, smallest_width_dp: 411 }) applied=Some(false)
+11-21 13:16:22.780  5166  5196 I WordCraft: wordcraft_android::android: autotest alive night=No java=Some(Current { night: false, smallest_width_dp: 411 }) applied=Some(false)
+11-21 13:16:24.782  5166  5196 I WordCraft: wordcraft_android::android: autotest alive night=No java=Some(Current { night: false, smallest_width_dp: 411 }) applied=Some(false)
+11-21 13:16:26.786  5166  5196 I WordCraft: wordcraft_android::android: autotest alive night=No java=Some(Current { night: false, smallest_width_dp: 411 }) applied=Some(false)
+11-21 13:16:26.989  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button file 77 130
+11-21 13:16:26.989  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button more 671 130
+11-21 13:16:26.989  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button save 587 130
+11-21 13:16:26.990  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button redo 503 130
+11-21 13:16:26.990  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button undo 419 130
+11-21 13:16:26.990  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button addShape 75 1488
+11-21 13:16:26.990  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button bold 189 1488
+11-21 13:16:26.990  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button italic 303 1488
+11-21 13:16:26.990  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button underline 417 1488
+11-21 13:16:26.990  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button highlight 531 1488
+11-21 13:16:26.990  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button fontcolor 645 1488
+11-21 13:16:26.990  5166  5196 I WordCraft: wordcraft_android::mobile: autotest doc bold=false italic=false underline=false fullScreenView=true text=""
+11-21 13:16:27.073  5166  5196 I WordCraft: wordcraft_android::android: autotest keyboard wanted=true
+11-21 13:16:27.643  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button file 77 130
+11-21 13:16:27.643  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button more 671 130
+11-21 13:16:27.643  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button save 587 130
+11-21 13:16:27.643  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button redo 503 130
+11-21 13:16:27.643  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button undo 419 130
+11-21 13:16:27.643  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button addShape 75 949
+11-21 13:16:27.643  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button bold 189 949
+11-21 13:16:27.643  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button italic 303 949
+11-21 13:16:27.643  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button underline 417 949
+11-21 13:16:27.643  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button highlight 531 949
+11-21 13:16:27.643  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button fontcolor 645 949
+11-21 13:16:28.876  5166  5196 I WordCraft: wordcraft_android::android: autotest alive night=No java=Some(Current { night: false, smallest_width_dp: 411 }) applied=Some(false)
+11-21 13:16:30.912  5166  5196 I WordCraft: wordcraft_android::android: autotest alive night=No java=Some(Current { night: false, smallest_width_dp: 411 }) applied=Some(false)
+11-21 13:16:33.009  5166  5196 I WordCraft: wordcraft_android::android: autotest alive night=No java=Some(Current { night: false, smallest_width_dp: 411 }) applied=Some(false)
+11-21 13:16:35.082  5166  5196 I WordCraft: wordcraft_android::android: autotest alive night=No java=Some(Current { night: false, smallest_width_dp: 411 }) applied=Some(false)
+11-21 13:16:37.118  5166  5196 I WordCraft: wordcraft_android::android: autotest alive night=No java=Some(Current { night: false, smallest_width_dp: 411 }) applied=Some(false)
+11-21 13:16:39.190  5166  5196 I WordCraft: wordcraft_android::android: autotest alive night=No java=Some(Current { night: false, smallest_width_dp: 411 }) applied=Some(false)
+11-21 13:16:41.308  5166  5196 I WordCraft: wordcraft_android::android: autotest alive night=No java=Some(Current { night: false, smallest_width_dp: 411 }) applied=Some(false)
+11-21 13:16:42.181  5166  5196 I WordCraft: wordcraft_android::mobile: autotest doc bold=false italic=false underline=false fullScreenView=true text="H"
+11-21 13:16:43.154  5166  5196 I WordCraft: craft_proof::english: English spelling: no Hunspell en_US dictionary to read first; using SCOWL or the built-in word list
+11-21 13:16:43.159  5166  5196 I WordCraft: wordcraft_android::mobile: autotest doc bold=false italic=false underline=false fullScreenView=true text="Ha"
+11-21 13:16:43.359  5166  5196 I WordCraft: wordcraft_android::android: autotest alive night=No java=Some(Current { night: false, smallest_width_dp: 411 }) applied=Some(false)
+11-21 13:16:43.615  5166  5196 I WordCraft: wordcraft_android::mobile: autotest doc bold=false italic=false underline=false fullScreenView=true text="Hal"
+11-21 13:16:44.128  5166  5196 I WordCraft: wordcraft_android::mobile: autotest doc bold=false italic=false underline=false fullScreenView=true text="Hall"
+11-21 13:16:44.618  5166  5196 I WordCraft: wordcraft_android::mobile: autotest doc bold=false italic=false underline=false fullScreenView=true text="Hallo "
+11-21 13:16:45.441  5166  5196 I WordCraft: wordcraft_android::android: autotest alive night=No java=Some(Current { night: false, smallest_width_dp: 411 }) applied=Some(false)
+11-21 13:16:47.328  5166  5196 I WordCraft: wordcraft_android::mobile: autotest doc bold=true italic=false underline=false fullScreenView=true text="Hallo "
+11-21 13:16:47.542  5166  5196 I WordCraft: wordcraft_android::android: autotest alive night=No java=Some(Current { night: false, smallest_width_dp: 411 }) applied=Some(false)
+11-21 13:16:49.616  5166  5196 I WordCraft: wordcraft_android::android: autotest alive night=No java=Some(Current { night: false, smallest_width_dp: 411 }) applied=Some(false)
+11-21 13:16:51.718  5166  5196 I WordCraft: wordcraft_android::android: autotest alive night=No java=Some(Current { night: false, smallest_width_dp: 411 }) applied=Some(false)
+11-21 13:16:51.724  5166  5196 I WordCraft: wordcraft_android::mobile: autotest doc bold=true italic=false underline=false fullScreenView=true text="Hallo f"
+11-21 13:16:52.161  5166  5196 I WordCraft: wordcraft_android::mobile: autotest doc bold=true italic=false underline=false fullScreenView=true text="Hallo fett"
+11-21 13:16:53.784  5166  5196 I WordCraft: wordcraft_android::android: autotest alive night=No java=Some(Current { night: false, smallest_width_dp: 411 }) applied=Some(false)
+11-21 13:16:55.134  5166  5196 I WordCraft: wordcraft_android::mobile: autotest doc bold=false italic=false underline=false fullScreenView=true text="Hallo fett"
+11-21 13:16:55.847  5166  5196 I WordCraft: wordcraft_android::android: autotest alive night=No java=Some(Current { night: false, smallest_width_dp: 411 }) applied=Some(false)
+11-21 13:16:57.564  5166  5196 I WordCraft: wordcraft_android::mobile: autotest doc bold=false italic=false underline=false fullScreenView=true text="Hallo fett "
+11-21 13:16:57.911  5166  5196 I WordCraft: wordcraft_android::android: autotest alive night=No java=Some(Current { night: false, smallest_width_dp: 411 }) applied=Some(false)
+11-21 13:16:58.125  5166  5196 I WordCraft: wordcraft_android::mobile: autotest doc bold=false italic=false underline=false fullScreenView=true text="Hallo fett n"
+11-21 13:16:58.647  5166  5196 I WordCraft: wordcraft_android::mobile: autotest doc bold=false italic=false underline=false fullScreenView=true text="Hallo fett no"
+11-21 13:16:59.155  5166  5196 I WordCraft: wordcraft_android::mobile: autotest doc bold=false italic=false underline=false fullScreenView=true text="Hallo fett nor"
+11-21 13:16:59.632  5166  5196 I WordCraft: wordcraft_android::mobile: autotest doc bold=false italic=false underline=false fullScreenView=true text="Hallo fett norm"
+11-21 13:17:00.012  5166  5196 I WordCraft: wordcraft_android::android: autotest alive night=No java=Some(Current { night: false, smallest_width_dp: 411 }) applied=Some(false)
+11-21 13:17:00.176  5166  5196 I WordCraft: wordcraft_android::mobile: autotest doc bold=false italic=false underline=false fullScreenView=true text="Hallo fett norma"
+11-21 13:17:00.544  5166  5196 I WordCraft: wordcraft_android::mobile: autotest doc bold=false italic=false underline=false fullScreenView=true text="Hallo fett normal "
+11-21 13:17:01.055  5166  5196 I WordCraft: wordcraft_android::mobile: autotest doc bold=false italic=true underline=false fullScreenView=true text="Hallo fett normal "
+11-21 13:17:02.095  5166  5196 I WordCraft: wordcraft_android::android: autotest alive night=No java=Some(Current { night: false, smallest_width_dp: 411 }) applied=Some(false)
+11-21 13:17:03.400  5166  5196 I WordCraft: wordcraft_android::mobile: autotest doc bold=false italic=true underline=false fullScreenView=true text="Hallo fett normal k"
+11-21 13:17:03.792  5166  5196 I WordCraft: wordcraft_android::mobile: autotest doc bold=false italic=true underline=false fullScreenView=true text="Hallo fett normal ku"
+11-21 13:17:03.919  5166  5196 I WordCraft: wordcraft_android::mobile: autotest doc bold=false italic=true underline=false fullScreenView=true text="Hallo fett normal kursiv"
+11-21 13:17:04.171  5166  5196 I WordCraft: wordcraft_android::android: autotest alive night=No java=Some(Current { night: false, smallest_width_dp: 411 }) applied=Some(false)
+11-21 13:17:06.191  5166  5196 I WordCraft: wordcraft_android::android: autotest alive night=No java=Some(Current { night: false, smallest_width_dp: 411 }) applied=Some(false)
+11-21 13:17:07.536  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button file 77 130
+11-21 13:17:07.537  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button more 671 130
+11-21 13:17:07.537  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button save 587 130
+11-21 13:17:07.537  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button redo 503 130
+11-21 13:17:07.537  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button undo 419 130
+11-21 13:17:07.537  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button addShape 75 949
+11-21 13:17:07.537  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button bold 189 949
+11-21 13:17:07.538  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button italic 303 949
+11-21 13:17:07.538  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button underline 417 949
+11-21 13:17:07.538  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button highlight 531 949
+11-21 13:17:07.538  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button fontcolor 645 949
+11-21 13:17:07.538  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button yellow 86 823
+11-21 13:17:07.538  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button green 223 823
+11-21 13:17:07.538  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button cyan 360 823
+11-21 13:17:07.538  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button magenta 497 823
+11-21 13:17:07.538  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button none 634 823
+11-21 13:17:08.270  5166  5196 I WordCraft: wordcraft_android::android: autotest alive night=No java=Some(Current { night: false, smallest_width_dp: 411 }) applied=Some(false)
+11-21 13:17:10.302  5166  5196 I WordCraft: wordcraft_android::android: autotest alive night=No java=Some(Current { night: false, smallest_width_dp: 411 }) applied=Some(false)
+11-21 13:17:11.861  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button file 77 130
+11-21 13:17:11.861  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button more 671 130
+11-21 13:17:11.861  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button save 587 130
+11-21 13:17:11.861  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button redo 503 130
+11-21 13:17:11.861  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button undo 419 130
+11-21 13:17:11.861  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button addShape 75 949
+11-21 13:17:11.861  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button bold 189 949
+11-21 13:17:11.861  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button italic 303 949
+11-21 13:17:11.861  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button underline 417 949
+11-21 13:17:11.861  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button highlight 531 949
+11-21 13:17:11.861  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button fontcolor 645 949
+11-21 13:17:11.861  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button yellow 86 823
+11-21 13:17:11.972  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button file 77 130
+11-21 13:17:11.972  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button more 671 130
+11-21 13:17:11.972  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button save 587 130
+11-21 13:17:11.972  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button redo 503 130
+11-21 13:17:11.972  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button undo 419 130
+11-21 13:17:11.972  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button addShape 75 949
+11-21 13:17:11.972  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button bold 189 949
+11-21 13:17:11.972  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button italic 303 949
+11-21 13:17:11.972  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button underline 417 949
+11-21 13:17:11.972  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button highlight 531 949
+11-21 13:17:11.972  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button fontcolor 645 949
+11-21 13:17:12.383  5166  5196 I WordCraft: wordcraft_android::android: autotest alive night=No java=Some(Current { night: false, smallest_width_dp: 411 }) applied=Some(false)
+11-21 13:17:14.260  5166  5196 I WordCraft: wordcraft_android::mobile: autotest doc bold=false italic=true underline=false fullScreenView=true text="Hallo fett normal kursiv "
+11-21 13:17:14.479  5166  5196 I WordCraft: wordcraft_android::android: autotest alive night=No java=Some(Current { night: false, smallest_width_dp: 411 }) applied=Some(false)
+11-21 13:17:14.770  5166  5196 I WordCraft: wordcraft_android::mobile: autotest doc bold=false italic=true underline=false fullScreenView=true text="Hallo fett normal kursiv m"
+11-21 13:17:15.152  5166  5196 I WordCraft: wordcraft_android::mobile: autotest doc bold=false italic=true underline=false fullScreenView=true text="Hallo fett normal kursiv ma"
+11-21 13:17:15.621  5166  5196 I WordCraft: wordcraft_android::mobile: autotest doc bold=false italic=true underline=false fullScreenView=true text="Hallo fett normal kursiv mar"
+11-21 13:17:16.078  5166  5196 I WordCraft: wordcraft_android::mobile: autotest doc bold=false italic=true underline=false fullScreenView=true text="Hallo fett normal kursiv mark"
+11-21 13:17:16.569  5166  5196 I WordCraft: wordcraft_android::android: autotest alive night=No java=Some(Current { night: false, smallest_width_dp: 411 }) applied=Some(false)
+11-21 13:17:16.661  5166  5196 I WordCraft: wordcraft_android::mobile: autotest doc bold=false italic=true underline=false fullScreenView=true text="Hallo fett normal kursiv marki"
+11-21 13:17:17.024  5166  5196 I WordCraft: wordcraft_android::mobile: autotest doc bold=false italic=true underline=false fullScreenView=true text="Hallo fett normal kursiv markie"
+11-21 13:17:17.453  5166  5196 I WordCraft: wordcraft_android::mobile: autotest doc bold=false italic=true underline=false fullScreenView=true text="Hallo fett normal kursiv markier"
+11-21 13:17:17.959  5166  5196 I WordCraft: wordcraft_android::mobile: autotest doc bold=false italic=true underline=false fullScreenView=true text="Hallo fett normal kursiv markiert"
+11-21 13:17:18.634  5166  5196 I WordCraft: wordcraft_android::android: autotest alive night=No java=Some(Current { night: false, smallest_width_dp: 411 }) applied=Some(false)
+11-21 13:17:20.721  5166  5196 I WordCraft: wordcraft_android::android: autotest alive night=No java=Some(Current { night: false, smallest_width_dp: 411 }) applied=Some(false)
+11-21 13:17:22.290  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button file 77 130
+11-21 13:17:22.290  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button more 671 130
+11-21 13:17:22.290  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button save 587 130
+11-21 13:17:22.290  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button redo 503 130
+11-21 13:17:22.290  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button undo 419 130
+11-21 13:17:22.290  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button addShape 75 949
+11-21 13:17:22.290  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button bold 189 949
+11-21 13:17:22.290  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button italic 303 949
+11-21 13:17:22.290  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button underline 417 949
+11-21 13:17:22.290  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button highlight 531 949
+11-21 13:17:22.290  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button fontcolor 645 949
+11-21 13:17:22.290  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button auto 66 823
+11-21 13:17:22.290  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button C00000 164 823
+11-21 13:17:22.290  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button FF0000 262 823
+11-21 13:17:22.290  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button FFC000 360 823
+11-21 13:17:22.290  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button 00B050 458 823
+11-21 13:17:22.290  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button 0070C0 556 823
+11-21 13:17:22.290  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button 7030A0 654 823
+11-21 13:17:22.736  5166  5196 I WordCraft: wordcraft_android::android: autotest alive night=No java=Some(Current { night: false, smallest_width_dp: 411 }) applied=Some(false)
+11-21 13:17:24.808  5166  5196 I WordCraft: wordcraft_android::android: autotest alive night=No java=Some(Current { night: false, smallest_width_dp: 411 }) applied=Some(false)
+11-21 13:17:26.582  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button file 77 130
+11-21 13:17:26.584  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button more 671 130
+11-21 13:17:26.584  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button save 587 130
+11-21 13:17:26.584  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button redo 503 130
+11-21 13:17:26.585  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button undo 419 130
+11-21 13:17:26.585  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button addShape 75 949
+11-21 13:17:26.585  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button bold 189 949
+11-21 13:17:26.585  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button italic 303 949
+11-21 13:17:26.585  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button underline 417 949
+11-21 13:17:26.585  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button highlight 531 949
+11-21 13:17:26.585  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button fontcolor 645 949
+11-21 13:17:26.585  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button auto 66 823
+11-21 13:17:26.585  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button C00000 164 823
+11-21 13:17:26.586  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button FF0000 262 823
+11-21 13:17:26.691  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button file 77 130
+11-21 13:17:26.691  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button more 671 130
+11-21 13:17:26.691  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button save 587 130
+11-21 13:17:26.691  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button redo 503 130
+11-21 13:17:26.691  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button undo 419 130
+11-21 13:17:26.691  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button addShape 75 949
+11-21 13:17:26.691  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button bold 189 949
+11-21 13:17:26.691  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button italic 303 949
+11-21 13:17:26.691  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button underline 417 949
+11-21 13:17:26.691  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button highlight 531 949
+11-21 13:17:26.691  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button fontcolor 645 949
+11-21 13:17:26.868  5166  5196 I WordCraft: wordcraft_android::android: autotest alive night=No java=Some(Current { night: false, smallest_width_dp: 411 }) applied=Some(false)
+11-21 13:17:28.905  5166  5196 I WordCraft: wordcraft_android::android: autotest alive night=No java=Some(Current { night: false, smallest_width_dp: 411 }) applied=Some(false)
+11-21 13:17:29.233  5166  5196 I WordCraft: wordcraft_android::mobile: autotest doc bold=false italic=true underline=false fullScreenView=true text="Hallo fett normal kursiv markiert "
+11-21 13:17:29.614  5166  5196 I WordCraft: wordcraft_android::mobile: autotest doc bold=false italic=true underline=false fullScreenView=true text="Hallo fett normal kursiv markiert r"
+11-21 13:17:29.968  5166  5196 I WordCraft: wordcraft_android::mobile: autotest doc bold=false italic=true underline=false fullScreenView=true text="Hallo fett normal kursiv markiert ro"
+11-21 13:17:30.560  5166  5196 I WordCraft: wordcraft_android::mobile: autotest doc bold=false italic=true underline=false fullScreenView=true text="Hallo fett normal kursiv markiert rot"
+11-21 13:17:30.928  5166  5196 I WordCraft: wordcraft_android::android: autotest alive night=No java=Some(Current { night: false, smallest_width_dp: 411 }) applied=Some(false)
+11-21 13:17:33.023  5166  5196 I WordCraft: wordcraft_android::android: autotest alive night=No java=Some(Current { night: false, smallest_width_dp: 411 }) applied=Some(false)
+11-21 13:17:34.544  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button file 77 130
+11-21 13:17:34.544  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button more 671 130
+11-21 13:17:34.544  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button save 587 130
+11-21 13:17:34.544  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button redo 503 130
+11-21 13:17:34.544  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button undo 419 130
+11-21 13:17:34.544  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button addShape 75 949
+11-21 13:17:34.544  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button bold 189 949
+11-21 13:17:34.544  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button italic 303 949
+11-21 13:17:34.544  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button underline 417 949
+11-21 13:17:34.544  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button highlight 531 949
+11-21 13:17:34.544  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button fontcolor 645 949
+11-21 13:17:34.544  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button picture 103 823
+11-21 13:17:34.544  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button table 274 823
+11-21 13:17:34.544  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button pageBreak 446 823
+11-21 13:17:34.544  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button comment 617 823
+11-21 13:17:35.028  5166  5196 I WordCraft: wordcraft_android::android: autotest alive night=No java=Some(Current { night: false, smallest_width_dp: 411 }) applied=Some(false)
+11-21 13:17:37.044  5166  5196 I WordCraft: wordcraft_android::android: autotest alive night=No java=Some(Current { night: false, smallest_width_dp: 411 }) applied=Some(false)
+11-21 13:17:39.106  5166  5196 I WordCraft: wordcraft_android::android: autotest alive night=No java=Some(Current { night: false, smallest_width_dp: 411 }) applied=Some(false)
+11-21 13:17:39.628  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button file 77 130
+11-21 13:17:39.628  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button more 671 130
+11-21 13:17:39.628  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button save 587 130
+11-21 13:17:39.628  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button redo 503 130
+11-21 13:17:39.628  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button undo 419 130
+11-21 13:17:39.628  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button addShape 75 949
+11-21 13:17:39.628  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button bold 189 949
+11-21 13:17:39.628  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button italic 303 949
+11-21 13:17:39.628  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button underline 417 949
+11-21 13:17:39.628  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button highlight 531 949
+11-21 13:17:39.628  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button fontcolor 645 949
+11-21 13:17:41.174  5166  5196 I WordCraft: wordcraft_android::android: autotest alive night=No java=Some(Current { night: false, smallest_width_dp: 411 }) applied=Some(false)
+11-21 13:17:42.213  5166  5196 I WordCraft: wordcraft_android::mobile: autotest doc bold=false italic=true underline=false fullScreenView=true text="Hallo fett normal kursiv markiert"
+11-21 13:17:43.270  5166  5196 I WordCraft: wordcraft_android::android: autotest alive night=No java=Some(Current { night: false, smallest_width_dp: 411 }) applied=Some(false)
+11-21 13:17:45.232  5166  5196 I WordCraft: wordcraft_android::android: autotest ime Delete { before: 8, after: 0 }
+11-21 13:17:45.232  5166  5196 I WordCraft: wordcraft_android::android: autotest ime Commit(".")
+11-21 13:17:45.236  5166  5196 I WordCraft: wordcraft_android::mobile: autotest doc bold=false italic=true underline=false fullScreenView=true text="Hallo fett normal kursiv ."
+11-21 13:17:45.330  5166  5196 I WordCraft: wordcraft_android::android: autotest alive night=No java=Some(Current { night: false, smallest_width_dp: 411 }) applied=Some(false)
+11-21 13:17:46.875  5166  5196 I WordCraft: wordcraft_android::android: autotest ime Preedit("Ke")
+11-21 13:17:47.384  5166  5196 I WordCraft: wordcraft_android::android: autotest alive night=No java=Some(Current { night: false, smallest_width_dp: 411 }) applied=Some(false)
+11-21 13:17:48.546  5166  5196 I WordCraft: wordcraft_android::android: autotest ime Preedit("Keyb")
+11-21 13:17:49.456  5166  5196 I WordCraft: wordcraft_android::android: autotest alive night=No java=Some(Current { night: false, smallest_width_dp: 411 }) applied=Some(false)
+11-21 13:17:51.007  5166  5196 I WordCraft: wordcraft_android::android: autotest ime Commit("Keyboard.")
+11-21 13:17:51.021  5166  5196 I WordCraft: wordcraft_android::mobile: autotest doc bold=false italic=true underline=false fullScreenView=true text="Hallo fett normal kursiv .Keyboard."
+11-21 13:17:51.528  5166  5196 I WordCraft: wordcraft_android::android: autotest alive night=No java=Some(Current { night: false, smallest_width_dp: 411 }) applied=Some(false)
+11-21 13:17:52.685  5166  5196 I WordCraft: wordcraft_android::android: autotest ime Preedit("Wischen")
+11-21 13:17:53.613  5166  5196 I WordCraft: wordcraft_android::android: autotest alive night=No java=Some(Current { night: false, smallest_width_dp: 411 }) applied=Some(false)
+11-21 13:17:54.226  5166  5196 I WordCraft: wordcraft_android::android: autotest ime Commit("Wischen")
+11-21 13:17:54.228  5166  5196 I WordCraft: wordcraft_android::mobile: autotest doc bold=false italic=true underline=false fullScreenView=true text="Hallo fett normal kursiv .Keyboard.Wischen"
+11-21 13:17:55.644  5166  5196 I WordCraft: wordcraft_android::android: autotest alive night=No java=Some(Current { night: false, smallest_width_dp: 411 }) applied=Some(false)
+11-21 13:17:55.840  5166  5196 I WordCraft: wordcraft_android::android: autotest ime Delete { before: 2, after: 0 }
+11-21 13:17:55.841  5166  5196 I WordCraft: wordcraft_android::mobile: autotest doc bold=false italic=true underline=false fullScreenView=true text="Hallo fett normal kursiv .Keyboard.Wisch"
+11-21 13:17:57.738  5166  5196 I WordCraft: wordcraft_android::android: autotest alive night=No java=Some(Current { night: false, smallest_width_dp: 411 }) applied=Some(false)
+11-21 13:17:58.953  5166  5196 I WordCraft: wordcraft_android::android: autotest ime Delete { before: 5, after: 0 }
+11-21 13:17:58.953  5166  5196 I WordCraft: wordcraft_android::android: autotest ime Preedit("Wischer")
+11-21 13:17:58.955  5166  5196 I WordCraft: wordcraft_android::mobile: autotest doc bold=false italic=true underline=false fullScreenView=true text="Hallo fett normal kursiv .Keyboard."
+11-21 13:17:59.791  5166  5196 I WordCraft: wordcraft_android::android: autotest alive night=No java=Some(Current { night: false, smallest_width_dp: 411 }) applied=Some(false)
+11-21 13:18:00.457  5166  5196 I WordCraft: wordcraft_android::android: autotest ime Commit("Wischer")
+11-21 13:18:00.459  5166  5196 I WordCraft: wordcraft_android::mobile: autotest doc bold=false italic=true underline=false fullScreenView=true text="Hallo fett normal kursiv .Keyboard.Wischer"
+11-21 13:18:01.876  5166  5196 I WordCraft: wordcraft_android::android: autotest alive night=No java=Some(Current { night: false, smallest_width_dp: 411 }) applied=Some(false)
+11-21 13:18:03.948  5166  5196 I WordCraft: wordcraft_android::android: autotest alive night=No java=Some(Current { night: false, smallest_width_dp: 411 }) applied=Some(false)
+11-21 13:18:05.952  5166  5196 I WordCraft: wordcraft_android::android: autotest alive night=No java=Some(Current { night: false, smallest_width_dp: 411 }) applied=Some(false)
+11-21 13:18:06.139  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button phoneView 571 918
+11-21 13:18:06.139  5166  5196 I WordCraft: wordcraft_android::mobile: autotest doc bold=false italic=true underline=false fullScreenView=false text="Hallo fett normal kursiv .Keyboard.Wischer"
+11-21 13:18:07.983  5166  5196 I WordCraft: wordcraft_android::android: autotest alive night=No java=Some(Current { night: false, smallest_width_dp: 411 }) applied=Some(false)
+11-21 13:18:10.010  5166  5196 I WordCraft: wordcraft_android::android: autotest alive night=No java=Some(Current { night: false, smallest_width_dp: 411 }) applied=Some(false)
+11-21 13:18:11.287  5166  5196 I WordCraft: wordcraft_android::android: autotest keyboard wanted=false
+11-21 13:18:11.439  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button file 77 130
+11-21 13:18:11.440  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button more 671 130
+11-21 13:18:11.440  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button save 587 130
+11-21 13:18:11.440  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button redo 503 130
+11-21 13:18:11.440  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button undo 419 130
+11-21 13:18:11.440  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button addShape 75 1488
+11-21 13:18:11.440  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button bold 189 1488
+11-21 13:18:11.441  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button italic 303 1488
+11-21 13:18:11.441  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button underline 417 1488
+11-21 13:18:11.441  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button highlight 531 1488
+11-21 13:18:11.441  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button fontcolor 645 1488
+11-21 13:18:11.441  5166  5196 I WordCraft: wordcraft_android::mobile: autotest doc bold=false italic=true underline=false fullScreenView=true text="Hallo fett normal kursiv .Keyboard.Wischer"
+11-21 13:18:12.490  5166  5196 I WordCraft: wordcraft_android::android: autotest alive night=No java=Some(Current { night: false, smallest_width_dp: 411 }) applied=Some(false)
+11-21 13:18:14.493  5166  5196 I WordCraft: wordcraft_android::android: autotest alive night=No java=Some(Current { night: false, smallest_width_dp: 411 }) applied=Some(false)
+11-21 13:18:15.799  5166  5196 I WordCraft: wordcraft_android::mobile: autotest doc bold=false italic=true underline=false fullScreenView=false text="Hallo fett normal kursiv .Keyboard.Wischer"
+11-21 13:18:16.858  5166  5196 I WordCraft: wordcraft_android::android: autotest alive night=No java=Some(Current { night: false, smallest_width_dp: 411 }) applied=Some(false)
+11-21 13:18:18.860  5166  5196 I WordCraft: wordcraft_android::android: autotest alive night=No java=Some(Current { night: false, smallest_width_dp: 411 }) applied=Some(false)
+11-21 13:18:20.954  5166  5196 I WordCraft: wordcraft_android::android: autotest alive night=No java=Some(Current { night: false, smallest_width_dp: 411 }) applied=Some(false)
+11-21 13:18:22.957  5166  5196 I WordCraft: wordcraft_android::android: autotest alive night=No java=Some(Current { night: false, smallest_width_dp: 411 }) applied=Some(false)
+11-21 13:18:25.237  5166  5196 I WordCraft: wordcraft_android::android: autotest alive night=No java=Some(Current { night: false, smallest_width_dp: 411 }) applied=Some(false)
+11-21 13:18:27.298  5166  5196 I WordCraft: wordcraft_android::android: autotest alive night=No java=Some(Current { night: false, smallest_width_dp: 411 }) applied=Some(false)
+11-21 13:18:29.301  5166  5196 I WordCraft: wordcraft_android::android: autotest alive night=No java=Some(Current { night: false, smallest_width_dp: 411 }) applied=Some(false)
+11-21 13:18:31.612  5166  5196 I WordCraft: wordcraft_android::android: autotest alive night=No java=Some(Current { night: false, smallest_width_dp: 411 }) applied=Some(false)
+11-21 13:18:33.277  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button file 77 130
+11-21 13:18:33.277  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button more 671 130
+11-21 13:18:33.277  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button save 587 130
+11-21 13:18:33.277  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button redo 503 130
+11-21 13:18:33.277  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button undo 419 130
+11-21 13:18:33.277  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button addShape 75 1488
+11-21 13:18:33.277  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button bold 189 1488
+11-21 13:18:33.277  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button italic 303 1488
+11-21 13:18:33.277  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button underline 417 1488
+11-21 13:18:33.278  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button highlight 531 1488
+11-21 13:18:33.278  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button fontcolor 645 1488
+11-21 13:18:33.278  5166  5196 I WordCraft: wordcraft_android::mobile: autotest doc bold=false italic=true underline=false fullScreenView=true text="Hallo fett normal kursiv .Keyboard.Wischer"
+11-21 13:18:33.360  5166  5196 I WordCraft: wordcraft_android::android: autotest keyboard wanted=true
+11-21 13:18:33.730  5166  5196 I WordCraft: wordcraft_android::android: autotest alive night=No java=Some(Current { night: false, smallest_width_dp: 411 }) applied=Some(false)
+11-21 13:18:33.731  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button file 77 130
+11-21 13:18:33.731  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button more 671 130
+11-21 13:18:33.731  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button save 587 130
+11-21 13:18:33.731  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button redo 503 130
+11-21 13:18:33.731  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button undo 419 130
+11-21 13:18:33.731  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button addShape 75 949
+11-21 13:18:33.731  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button bold 189 949
+11-21 13:18:33.731  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button italic 303 949
+11-21 13:18:33.731  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button underline 417 949
+11-21 13:18:33.731  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button highlight 531 949
+11-21 13:18:33.731  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button fontcolor 645 949
+11-21 13:18:35.773  5166  5196 I WordCraft: wordcraft_android::android: autotest alive night=No java=Some(Current { night: false, smallest_width_dp: 411 }) applied=Some(false)
+11-21 13:18:36.312  5166  5196 I WordCraft: wordcraft_android::mobile: autotest doc bold=true italic=false underline=false fullScreenView=true text="Hallo fett normal kursiv .Keyboard.Wischer"
+11-21 13:18:37.790  5166  5196 I WordCraft: wordcraft_android::android: autotest alive night=No java=Some(Current { night: false, smallest_width_dp: 411 }) applied=Some(false)
+11-21 13:18:39.880  5166  5196 I WordCraft: wordcraft_android::android: autotest alive night=No java=Some(Current { night: false, smallest_width_dp: 411 }) applied=Some(false)
+11-21 13:18:40.441  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button file 77 130
+11-21 13:18:40.441  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button more 671 130
+11-21 13:18:40.441  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button save 587 130
+11-21 13:18:40.441  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button redo 503 130
+11-21 13:18:40.441  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button undo 419 130
+11-21 13:18:40.441  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button addShape 75 1488
+11-21 13:18:40.441  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button bold 189 1488
+11-21 13:18:40.441  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button italic 303 1488
+11-21 13:18:40.441  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button underline 417 1488
+11-21 13:18:40.441  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button highlight 531 1488
+11-21 13:18:40.441  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button fontcolor 645 1488
+11-21 13:18:41.894  5166  5196 I WordCraft: wordcraft_android::android: autotest alive night=No java=Some(Current { night: false, smallest_width_dp: 411 }) applied=Some(false)
+11-21 13:18:43.931  5166  5196 I WordCraft: wordcraft_android::android: autotest alive night=No java=Some(Current { night: false, smallest_width_dp: 411 }) applied=Some(false)
+11-21 13:18:46.008  5166  5196 I WordCraft: wordcraft_android::android: autotest alive night=No java=Some(Current { night: false, smallest_width_dp: 411 }) applied=Some(false)
+11-21 13:18:47.230  5166  5196 I WordCraft: wordcraft_android::mobile: autotest doc bold=true italic=false underline=false fullScreenView=false text="Hallo fett normal kursiv .Keyboard.Wischer"
+11-21 13:18:47.320  5166  5196 I WordCraft: wordcraft_android::mobile: autotest doc bold=true italic=false underline=false fullScreenView=true text="Hallo fett normal kursiv .Keyboard.Wischer"
+11-21 13:18:48.073  5166  5196 I WordCraft: wordcraft_android::android: autotest alive night=No java=Some(Current { night: false, smallest_width_dp: 411 }) applied=Some(false)
+11-21 13:18:50.119  5166  5196 I WordCraft: wordcraft_android::android: autotest alive night=No java=Some(Current { night: false, smallest_width_dp: 411 }) applied=Some(false)
+11-21 13:18:50.406  5166  5196 I WordCraft: wordcraft_android::mobile: autotest doc bold=true italic=false underline=false fullScreenView=false text="Hallo fett normal kursiv .Keyboard.Wischer"
+11-21 13:18:50.490  5166  5196 I WordCraft: wordcraft_android::mobile: autotest doc bold=true italic=false underline=false fullScreenView=true text="Hallo fett normal kursiv .Keyboard.Wischer"
+11-21 13:18:52.186  5166  5196 I WordCraft: wordcraft_android::android: autotest alive night=No java=Some(Current { night: false, smallest_width_dp: 411 }) applied=Some(false)
+11-21 13:18:54.248  5166  5196 I WordCraft: wordcraft_android::android: autotest alive night=No java=Some(Current { night: false, smallest_width_dp: 411 }) applied=Some(false)
+11-21 13:18:55.904  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button file 77 130
+11-21 13:18:55.906  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button more 671 130
+11-21 13:18:55.906  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button save 587 130
+11-21 13:18:55.906  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button redo 503 130
+11-21 13:18:55.906  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button undo 419 130
+11-21 13:18:55.907  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button addShape 75 1530
+11-21 13:18:55.907  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button bold 189 1530
+11-21 13:18:55.907  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button italic 303 1530
+11-21 13:18:55.907  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button underline 417 1530
+11-21 13:18:55.907  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button highlight 531 1530
+11-21 13:18:55.908  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button fontcolor 645 1530
+11-21 13:18:56.018  5166  5196 I WordCraft: wordcraft_android::android: autotest night true
+11-21 13:18:56.346  5166  5196 I WordCraft: wordcraft_android::android: autotest alive night=No java=Some(Current { night: true, smallest_width_dp: 411 }) applied=Some(true)
+11-21 13:18:56.495  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button file 77 130
+11-21 13:18:56.495  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button more 671 130
+11-21 13:18:56.496  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button save 587 130
+11-21 13:18:56.496  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button redo 503 130
+11-21 13:18:56.496  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button undo 419 130
+11-21 13:18:56.496  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button addShape 75 1488
+11-21 13:18:56.496  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button bold 189 1488
+11-21 13:18:56.496  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button italic 303 1488
+11-21 13:18:56.496  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button underline 417 1488
+11-21 13:18:56.496  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button highlight 531 1488
+11-21 13:18:56.496  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button fontcolor 645 1488
+11-21 13:18:58.404  5166  5196 I WordCraft: wordcraft_android::android: autotest alive night=No java=Some(Current { night: true, smallest_width_dp: 411 }) applied=Some(true)
+11-21 13:19:00.454  5166  5196 I WordCraft: wordcraft_android::android: autotest alive night=No java=Some(Current { night: true, smallest_width_dp: 411 }) applied=Some(true)
+11-21 13:19:02.534  5166  5196 I WordCraft: wordcraft_android::android: autotest alive night=No java=Some(Current { night: true, smallest_width_dp: 411 }) applied=Some(true)
+11-21 13:19:04.603  5166  5196 I WordCraft: wordcraft_android::android: autotest alive night=No java=Some(Current { night: true, smallest_width_dp: 411 }) applied=Some(true)
+11-21 13:19:06.403  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button file 77 88
+11-21 13:19:06.403  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button more 1466 88
+11-21 13:19:06.403  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button save 1382 88
+11-21 13:19:06.403  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button redo 1298 88
+11-21 13:19:06.403  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button undo 1214 88
+11-21 13:19:06.403  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button addShape 141 608
+11-21 13:19:06.403  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button bold 387 608
+11-21 13:19:06.403  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button italic 634 608
+11-21 13:19:06.403  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button underline 881 608
+11-21 13:19:06.403  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button highlight 1128 608
+11-21 13:19:06.403  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button fontcolor 1374 608
+11-21 13:19:06.796  5166  5196 I WordCraft: wordcraft_android::android: autotest alive night=No java=Some(Current { night: true, smallest_width_dp: 411 }) applied=Some(true)
+11-21 13:19:08.818  5166  5196 I WordCraft: wordcraft_android::android: autotest alive night=No java=Some(Current { night: true, smallest_width_dp: 411 }) applied=Some(true)
+11-21 13:19:10.819  5166  5196 I WordCraft: wordcraft_android::android: autotest alive night=No java=Some(Current { night: true, smallest_width_dp: 411 }) applied=Some(true)
+11-21 13:19:12.919  5166  5196 I WordCraft: wordcraft_android::android: autotest alive night=No java=Some(Current { night: true, smallest_width_dp: 411 }) applied=Some(true)
+11-21 13:19:14.844  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button file 77 130
+11-21 13:19:14.844  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button more 671 130
+11-21 13:19:14.844  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button save 587 130
+11-21 13:19:14.844  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button redo 503 130
+11-21 13:19:14.844  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button undo 419 130
+11-21 13:19:14.844  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button addShape 75 1488
+11-21 13:19:14.844  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button bold 189 1488
+11-21 13:19:14.844  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button italic 303 1488
+11-21 13:19:14.844  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button underline 417 1488
+11-21 13:19:14.844  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button highlight 531 1488
+11-21 13:19:14.844  5166  5196 I WordCraft: wordcraft_android::mobile: autotest button fontcolor 645 1488
+11-21 13:19:14.964  5166  5196 I WordCraft: wordcraft_android::android: autotest alive night=No java=Some(Current { night: true, smallest_width_dp: 411 }) applied=Some(true)
+11-21 13:19:17.022  5166  5196 I WordCraft: wordcraft_android::android: autotest alive night=No java=Some(Current { night: true, smallest_width_dp: 411 }) applied=Some(true)
+11-21 13:19:18.824  5166  5196 W WordCraft: egui_wgpu::winit: No window - clearing all surfaces
+11-21 13:19:18.970  5166  5200 W WordCraft: wordcraft_android::android: the activity is being destroyed and the event loop cannot end: ending the process

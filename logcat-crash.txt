@@ -1,0 +1,39 @@
+--------- beginning of crash
+11-21 13:19:19.173  5166  5200 F libc    : FORTIFY: pthread_mutex_lock called on a destroyed mutex (0x71e5c5bff018)
+11-21 13:19:19.173  5166  5200 F libc    : Fatal signal 6 (SIGABRT), code -1 (SI_QUEUE) in tid 5200 (Thread-2), pid 5166 (rdcraft.android)
+11-21 13:19:19.690  6759  6759 F DEBUG   : *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
+11-21 13:19:19.690  6759  6759 F DEBUG   : Build fingerprint: 'google/sdk_gphone64_x86_64/emu64xa:14/UE1A.230829.050/12077443:userdebug/dev-keys'
+11-21 13:19:19.690  6759  6759 F DEBUG   : Revision: '0'
+11-21 13:19:19.690  6759  6759 F DEBUG   : ABI: 'x86_64'
+11-21 13:19:19.690  6759  6759 F DEBUG   : Timestamp: 2026-11-21 13:19:19.340648457+0000
+11-21 13:19:19.690  6759  6759 F DEBUG   : Process uptime: 195s
+11-21 13:19:19.690  6759  6759 F DEBUG   : Cmdline: ai.storyteller.wordcraft.android
+11-21 13:19:19.690  6759  6759 F DEBUG   : pid: 5166, tid: 5200, name: Thread-2  >>> ai.storyteller.wordcraft.android <<<
+11-21 13:19:19.690  6759  6759 F DEBUG   : uid: 10192
+11-21 13:19:19.690  6759  6759 F DEBUG   : signal 6 (SIGABRT), code -1 (SI_QUEUE), fault addr --------
+11-21 13:19:19.690  6759  6759 F DEBUG   : Abort message: 'FORTIFY: pthread_mutex_lock called on a destroyed mutex (0x71e5c5bff018)'
+11-21 13:19:19.690  6759  6759 F DEBUG   :     rax 0000000000000000  rbx 000071e5bb4c2828  rcx 000071e8dd081610  rdx 0000000000000006
+11-21 13:19:19.690  6759  6759 F DEBUG   :     r8  0000000000000000  r9  0000000000000000  r10 000071e5bb4c2830  r11 0000000000000217
+11-21 13:19:19.690  6759  6759 F DEBUG   :     r12 0000000000001000  r13 00000000000005c3  r14 000000000000142e  r15 0000000000001450
+11-21 13:19:19.690  6759  6759 F DEBUG   :     rdi 000000000000142e  rsi 0000000000001450
+11-21 13:19:19.690  6759  6759 F DEBUG   :     rbp 0000000000008a48  rsp 000071e5bb4c2820  rip 000071e8dd081610
+11-21 13:19:19.690  6759  6759 F DEBUG   : 18 total frames
+11-21 13:19:19.690  6759  6759 F DEBUG   : backtrace:
+11-21 13:19:19.690  6759  6759 F DEBUG   :       #00 pc 0000000000061610  /apex/com.android.runtime/lib64/bionic/libc.so (abort+192) (BuildId: fa337969c798946280caa45e2d71a2e7)
+11-21 13:19:19.690  6759  6759 F DEBUG   :       #01 pc 00000000000633a0  /apex/com.android.runtime/lib64/bionic/libc.so (__fortify_fatal(char const*, ...)+160) (BuildId: fa337969c798946280caa45e2d71a2e7)
+11-21 13:19:19.690  6759  6759 F DEBUG   :       #02 pc 00000000000cdf4f  /apex/com.android.runtime/lib64/bionic/libc.so (HandleUsingDestroyedMutex(pthread_mutex_t*, char const*)+47) (BuildId: fa337969c798946280caa45e2d71a2e7)
+11-21 13:19:19.690  6759  6759 F DEBUG   :       #03 pc 00000000000cde14  /apex/com.android.runtime/lib64/bionic/libc.so (pthread_mutex_lock+132) (BuildId: fa337969c798946280caa45e2d71a2e7)
+11-21 13:19:19.690  6759  6759 F DEBUG   :       #04 pc 0000000000050115  /apex/com.android.vndk.v34/lib64/libc++.so (std::__1::mutex::lock()+5) (BuildId: 218ca89059ed1ba8c6bd1e3ac382f788)
+11-21 13:19:19.690  6759  6759 F DEBUG   :       #05 pc 000000000000d372  /vendor/lib64/egl/libEGL_emulation.so (EGLContext_t::deleteOnce(EGLContext_t*)+18) (BuildId: e943fbd05b8cb17a1a24a192657ba91f)
+11-21 13:19:19.690  6759  6759 F DEBUG   :       #06 pc 0000000000010f70  /vendor/lib64/egl/libEGL_emulation.so (eglDestroyContext+224) (BuildId: e943fbd05b8cb17a1a24a192657ba91f)
+11-21 13:19:19.690  6759  6759 F DEBUG   :       #07 pc 000000000000af4e  /vendor/lib64/egl/libEGL_emulation.so (eglDisplay::terminate()+62) (BuildId: e943fbd05b8cb17a1a24a192657ba91f)
+11-21 13:19:19.690  6759  6759 F DEBUG   :       #08 pc 000000000000ae4b  /vendor/lib64/egl/libEGL_emulation.so (eglDisplay::~eglDisplay()+11) (BuildId: e943fbd05b8cb17a1a24a192657ba91f)
+11-21 13:19:19.690  6759  6759 F DEBUG   :       #09 pc 00000000000d01d8  /apex/com.android.runtime/lib64/bionic/libc.so (__cxa_finalize+280) (BuildId: fa337969c798946280caa45e2d71a2e7)
+11-21 13:19:19.690  6759  6759 F DEBUG   :       #10 pc 00000000000c334e  /apex/com.android.runtime/lib64/bionic/libc.so (exit+14) (BuildId: fa337969c798946280caa45e2d71a2e7)
+11-21 13:19:19.690  6759  6759 F DEBUG   :       #11 pc 00000000087c5b99  /data/app/~~hFMZdqNGgpRn1b3eFRGkkg==/ai.storyteller.wordcraft.android-CFFCOmdj0Go2el9QU77ykw==/base.apk (offset 0x4000) (_RNvNtNtCs9uODHUSCl9u_3std3sys4exit4exit+9)
+11-21 13:19:19.690  6759  6759 F DEBUG   :       #12 pc 00000000087c4793  /data/app/~~hFMZdqNGgpRn1b3eFRGkkg==/ai.storyteller.wordcraft.android-CFFCOmdj0Go2el9QU77ykw==/base.apk (offset 0x4000) (_RNvNtCs9uODHUSCl9u_3std7process4exit+19)
+11-21 13:19:19.690  6759  6759 F DEBUG   :       #13 pc 0000000004aee6dc  /data/app/~~hFMZdqNGgpRn1b3eFRGkkg==/ai.storyteller.wordcraft.android-CFFCOmdj0Go2el9QU77ykw==/base.apk (offset 0x4000) (_RINvNtNtCs9uODHUSCl9u_3std3sys9backtrace28___rust_begin_short_backtraceNCNvNtCsgfATYBtvdeD_17wordcraft_android7android17watch_for_destroy0uEB1d_+364)
+11-21 13:19:19.690  6759  6759 F DEBUG   :       #14 pc 0000000004af934b  /data/app/~~hFMZdqNGgpRn1b3eFRGkkg==/ai.storyteller.wordcraft.android-CFFCOmdj0Go2el9QU77ykw==/base.apk (offset 0x4000) (_RNSNvYNCINvNtNtCs9uODHUSCl9u_3std6thread9lifecycle15spawn_uncheckedNCNvNtCsgfATYBtvdeD_17wordcraft_android7android17watch_for_destroy0uEs_0INtNtNtCslKGOgA3N8KJ_4core3ops8function6FnOnceuE9call_once6vtableB19_+107)
+11-21 13:19:19.690  6759  6759 F DEBUG   :       #15 pc 00000000087ca8f7  /data/app/~~hFMZdqNGgpRn1b3eFRGkkg==/ai.storyteller.wordcraft.android-CFFCOmdj0Go2el9QU77ykw==/base.apk (offset 0x4000) (_RNvNvMs0_NtNtNtCs9uODHUSCl9u_3std3sys6thread4unixNtB7_6Thread3new12thread_start+439)
+11-21 13:19:19.690  6759  6759 F DEBUG   :       #16 pc 00000000000cd06a  /apex/com.android.runtime/lib64/bionic/libc.so (__pthread_start(void*)+58) (BuildId: fa337969c798946280caa45e2d71a2e7)
+11-21 13:19:19.690  6759  6759 F DEBUG   :       #17 pc 0000000000062d88  /apex/com.android.runtime/lib64/bionic/libc.so (__start_thread+56) (BuildId: fa337969c798946280caa45e2d71a2e7)

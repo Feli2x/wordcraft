@@ -1,0 +1,16 @@
+== keyboard operations the app received
+11-21 13:17:45.232  5166  5196 I WordCraft: wordcraft_android::android: autotest ime Delete { before: 8, after: 0 }
+11-21 13:17:45.232  5166  5196 I WordCraft: wordcraft_android::android: autotest ime Commit(".")
+11-21 13:17:46.875  5166  5196 I WordCraft: wordcraft_android::android: autotest ime Preedit("Ke")
+11-21 13:17:48.546  5166  5196 I WordCraft: wordcraft_android::android: autotest ime Preedit("Keyb")
+11-21 13:17:51.007  5166  5196 I WordCraft: wordcraft_android::android: autotest ime Commit("Keyboard.")
+11-21 13:17:52.685  5166  5196 I WordCraft: wordcraft_android::android: autotest ime Preedit("Wischen")
+11-21 13:17:54.226  5166  5196 I WordCraft: wordcraft_android::android: autotest ime Commit("Wischen")
+11-21 13:17:55.840  5166  5196 I WordCraft: wordcraft_android::android: autotest ime Delete { before: 2, after: 0 }
+11-21 13:17:58.953  5166  5196 I WordCraft: wordcraft_android::android: autotest ime Delete { before: 5, after: 0 }
+11-21 13:17:58.953  5166  5196 I WordCraft: wordcraft_android::android: autotest ime Preedit("Wischer")
+11-21 13:18:00.457  5166  5196 I WordCraft: wordcraft_android::android: autotest ime Commit("Wischer")
+== document after them
+bold=false italic=true underline=false fullScreenView=true text="Hallo fett normal kursiv .Keyboard.Wischer"
+== keyboard shown
+  mInputShown=true

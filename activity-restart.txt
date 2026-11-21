@@ -1,0 +1,2 @@
+process before the restart: 5166, after: none
+no ANR
