@@ -175,6 +175,17 @@ shot back-to-phone
 tap file
 sleep 4
 shot file-page
+# The phone's File page: the menu fills the screen; a page opens full width with a Back to the
+# menu (rows are drawn, not logged: positions for the fixed 720x1600 screen of this test).
+adb shell input tap 150 919
+sleep 3
+shot options-page
+adb shell input tap 150 170
+sleep 3
+shot options-display-pane
+adb shell input tap 100 105
+sleep 3
+shot back-to-file-menu
 adb shell input keyevent 111
 sleep 4
 shot after-file-page
