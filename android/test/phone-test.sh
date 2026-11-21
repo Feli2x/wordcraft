@@ -180,12 +180,28 @@ shot file-page
 adb shell input tap 150 919
 sleep 3
 shot options-page
-adb shell input tap 150 170
+adb shell input tap 190 311
 sleep 3
 shot options-display-pane
-adb shell input tap 100 105
+adb shell input tap 100 136
 sleep 3
 shot back-to-file-menu
+# Home, New and Open: each page opens full width.
+adb shell input tap 150 184
+sleep 3
+shot page-home
+adb shell input tap 100 136
+sleep 3
+adb shell input tap 150 258
+sleep 3
+shot page-new
+adb shell input tap 100 136
+sleep 3
+adb shell input tap 150 331
+sleep 3
+shot page-open
+adb shell input tap 100 136
+sleep 3
 adb shell input keyevent 111
 sleep 4
 shot after-file-page
