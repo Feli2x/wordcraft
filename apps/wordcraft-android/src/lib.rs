@@ -346,6 +346,24 @@ mod android {
                 self.keyboard.ack = op.seq;
                 raw.events.extend(op.events());
             }
+            // The system's Back arrives as the key "BrowserBack" (winit reports it as handled, so
+            // Android does not end the app): WordCraft's Escape instead (leave a page, close a
+            // menu or dialog).
+            let back = |e: &egui::Event| matches!(e, egui::Event::Key { key: egui::Key::BrowserBack, .. });
+            if raw.events.iter().any(back) {
+                for e in std::mem::take(&mut raw.events) {
+                    match e {
+                        egui::Event::Key { key: egui::Key::BrowserBack, pressed, .. } => raw.events.push(egui::Event::Key {
+                            key: egui::Key::Escape,
+                            physical_key: None,
+                            pressed,
+                            repeat: false,
+                            modifiers: egui::Modifiers::NONE,
+                        }),
+                        e => raw.events.push(e),
+                    }
+                }
+            }
             self.app.raw_input_hook(ctx, raw);
         }
 
