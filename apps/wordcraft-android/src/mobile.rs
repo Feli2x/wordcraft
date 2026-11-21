@@ -20,6 +20,7 @@
 
 use egui::{Align2, Color32, CornerRadius, Rect, Sense, Stroke, Ui, UiBuilder, Vec2, pos2, vec2};
 use serde_json::{Value, json};
+use wordcraft_ui_egui::i18n::t as tl;
 use wordcraft_ui_egui::{WordApp, icons};
 
 /// Screens whose shorter side is narrower than this (in points) get the phone layout.
@@ -117,21 +118,21 @@ impl Tool {
         }
     }
 
-    /// The accessible name (the visible label for File).
+    /// The accessible name in English (the visible label for File), translated where shown.
     fn label(self) -> &'static str {
         match self {
-            Tool::File => "Datei",
-            Tool::Undo => "Rückgängig",
-            Tool::Redo => "Wiederholen",
-            Tool::Save => "Speichern",
-            Tool::AllCommands => "Alle Befehle",
-            Tool::Insert => "Einfügen",
-            Tool::Bold => "Fett",
-            Tool::Italic => "Kursiv",
-            Tool::Underline => "Unterstrichen",
-            Tool::Highlight => "Hervorheben",
-            Tool::Color => "Schriftfarbe",
-            Tool::More => "Weitere Befehle",
+            Tool::File => "File",
+            Tool::Undo => "Undo",
+            Tool::Redo => "Redo",
+            Tool::Save => "Save",
+            Tool::AllCommands => "All Commands",
+            Tool::Insert => "Insert",
+            Tool::Bold => "Bold",
+            Tool::Italic => "Italic",
+            Tool::Underline => "Underline",
+            Tool::Highlight => "Text Highlight Color",
+            Tool::Color => "Font Color",
+            Tool::More => "More Commands",
         }
     }
 }
@@ -362,7 +363,8 @@ impl Mobile {
     /// Draw one button and note its centre for the test; true when it was tapped.
     fn tool_button(&mut self, ui: &mut Ui, r: Rect, t: Tool, active: bool, fg: Color32, accent: Color32) -> bool {
         self.buttons.push((t.name(), r.center()));
-        let response = if t == Tool::File { text_button(ui, r, t.label(), fg) } else { icon_button(ui, r, t.icon(), t.label(), active, fg, accent) };
+        let response =
+            if t == Tool::File { text_button(ui, r, tl(t.label()), fg) } else { icon_button(ui, r, t.icon(), tl(t.label()), active, fg, accent) };
         response.clicked()
     }
 
@@ -413,10 +415,10 @@ impl Mobile {
         match menu {
             Menu::Insert => {
                 let items = [
-                    ("picture", "Bild", "insert.picture", json!({})),
-                    ("table", "Tabelle", "insert.table", json!({"rows": 3, "cols": 3})),
-                    ("pageBreak", "Seitenumbruch", "insert.pageBreak", json!({})),
-                    ("comment", "Kommentar", "review.newComment", json!({})),
+                    ("picture", "Pictures", "insert.picture", json!({})),
+                    ("table", "Table", "insert.table", json!({"rows": 3, "cols": 3})),
+                    ("pageBreak", "Page Break", "insert.pageBreak", json!({})),
+                    ("comment", "New Comment", "review.newComment", json!({})),
                 ];
                 let step = r.width() / items.len() as f32;
                 for (i, (icon, label, cmd, params)) in items.into_iter().enumerate() {
@@ -427,7 +429,7 @@ impl Mobile {
                         ui.painter().rect_filled(cell, 8.0, accent.gamma_multiply(0.3));
                     }
                     icons::paint(ui.painter(), Rect::from_center_size(cell.center() - vec2(0.0, 10.0), Vec2::splat(24.0)), icon, fg, accent);
-                    ui.painter().text(cell.center() + vec2(0.0, 16.0), Align2::CENTER_CENTER, label, egui::FontId::proportional(12.0), fg);
+                    ui.painter().text(cell.center() + vec2(0.0, 16.0), Align2::CENTER_CENTER, tl(label), egui::FontId::proportional(12.0), fg);
                     if resp.clicked() {
                         let _ = app.run(cmd, params);
                         return true;
@@ -475,7 +477,7 @@ impl Mobile {
             let accent = ui.visuals().selection.bg_fill;
             let resp = ui.allocate_rect(r, Sense::click());
             ui.painter().rect_filled(r, 22.0, accent);
-            ui.painter().text(r.center(), Align2::CENTER_CENTER, "Handyansicht", egui::FontId::proportional(16.0), Color32::WHITE);
+            ui.painter().text(r.center(), Align2::CENTER_CENTER, tl("Phone View"), egui::FontId::proportional(16.0), Color32::WHITE);
             if resp.clicked() {
                 self.all_commands = false;
             }

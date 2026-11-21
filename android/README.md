@@ -26,9 +26,19 @@ adb install -r app/build/outputs/apk/release/app-release.apk
 - **Schriften:** Android hat keine metrikkompatiblen Office-Schriften (Carlito, Liberation, Caladea). Für originalgetreues Layout von .docx-Dateien diese `.ttf`-Dateien in den Ordner `fonts/` im Startordner kopieren.
 - **Logs:** `adb logcat -s WordCraft`
 
+## Handy-Oberfläche
+
+- Auf Bildschirmen, deren kürzere Seite unter 600 dp liegt (Handys, auch quer), zeigt die App eine eigene Oberfläche: das Dokument in Weblayout und Vollbildansicht, oben Datei, Rückgängig, Wiederholen, Speichern und „⋯“ (alle Befehle), unten eine schwebende Leiste mit Einfügen, Fett, Kursiv, Unterstrichen, Hervorheben, Schriftfarbe und „⋯“. Ist die Höhe zu klein (quer mit Tastatur), liegen alle Knöpfe in einer Zeile. Tablets und DeX-Fenster behalten die Desktop-Oberfläche.
+- Das helle oder dunkle Design folgt dem System, auch beim Umschalten während der Laufzeit.
+- Updates installieren sich über die alte Version (fester Signaturschlüssel im Actions-Cache; nach 7 Tagen ohne Lauf verfällt er, dann einmal deinstallieren).
+
+## Automatischer Test im Emulator
+
+Der Job `emulator-test` installiert die x86_64-APK in einem Android-14-Emulator, tippt Text, schaltet Fett, Kursiv, Hervorheben und Farbe, öffnet die Menüs, wechselt Nacht- und Quermodus und erzwingt einen Neustart der Activity. Nach jedem Schritt entsteht ein Screenshot; mit `debug.wordcraft.autotest=1` protokolliert die App Knopfpositionen, Text und Formatierung. Ergebnisse: Branch `android-test-results` und Artefakt `emulator-test`.
+
 ## Bekannte Einschränkungen
 
 - Bildschirmtastatur: Eine `NativeActivity` erhält nur einfache Tastenereignisse (keine Autokorrektur, kein Wischen, Umlaute je nach Tastatur-App). Eine Hardware-Tastatur funktioniert vollständig.
 - Kein Systemdateidialog (eingebauter Browser stattdessen), kein Drucken, keine Updates, keine Sprachpaket-Downloads.
-- Die Oberfläche ist für Maus und großen Bildschirm gebaut; auf Tablets mit Tastatur ist sie brauchbarer als auf Smartphones.
+- Muss Android die Activity neu erzeugen (z. B. nach einer Änderung der Systemfarben oder eines Overlays), beendet sich die App, statt einzufrieren; ungesicherte Änderungen der letzten Sekunden stellt Datei › Wiederherstellen wieder her.
 - „ArtCraft“ und „WordCraft“ sind Marken von ArtCraft und nicht von der MIT/Apache-Lizenz gedeckt: für die Weitergabe eines eigenen Builds bitte umbenennen.

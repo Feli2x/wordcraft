@@ -90,8 +90,10 @@ mod android {
     /// `android_main` has returned: any restart of the activity (a change of the system's colours
     /// or fonts, leaving with Back) froze the app until Android closed it as not responding
     /// (emulator run 29). This thread notices the destruction and ends the process instead; the
-    /// recovery copies (every 10 s) keep the work, and Android starts the app again if it restarts
-    /// the activity. `stop` ends the watch when `android_main` returns by itself.
+    /// recovery copies (every 10 s) keep the work (File › Recover after the next start). Android
+    /// does not start the app again after such a restart (run 31: a start request made just before
+    /// the end was dropped with the process). `stop` ends the watch when `android_main` returns by
+    /// itself.
     fn watch_for_destroy(android: AndroidApp, stop: std::sync::Arc<std::sync::atomic::AtomicBool>) {
         let spawned = std::thread::Builder::new().name("wordcraft-destroy".into()).spawn(move || {
             while !stop.load(std::sync::atomic::Ordering::Relaxed) {
@@ -99,12 +101,6 @@ mod android {
                 // SAFETY: `android` (a clone of the app's AndroidApp) is alive in this thread.
                 if unsafe { crate::config::destroyed(android.activity_as_ptr()) } == Some(true) {
                     log::warn!("the activity is being destroyed and the event loop cannot end: ending the process");
-                    // A restart for a configuration change (not leaving the app): start it again.
-                    // SAFETY: as above.
-                    if unsafe { crate::config::changing_configurations(android.activity_as_ptr()) } == Some(true) {
-                        let asked = unsafe { crate::config::start_again(android.activity_as_ptr()) };
-                        log::info!("restart for a configuration change; started again: {asked}");
-                    }
                     std::thread::sleep(std::time::Duration::from_millis(200));
                     std::process::exit(0);
                 }
