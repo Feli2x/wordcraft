@@ -25,9 +25,11 @@ type_text() { dismiss_dialogs; adb shell input text "$(printf %s "$1" | sed 's/ 
 # If a system dialog has the focus instead of the app, tap its "Wait" (or "OK") button.
 dismiss_dialogs() {
     local focus bounds
-    focus=$(adb shell dumpsys window | grep -m1 mCurrentFocus)
-    case "$focus" in *"$PKG"*) return 0 ;; esac
-    echo "focus not on the app: $focus"
+    # An "isn't responding" or error dialog is a window of its own (the launcher may report the
+    # focus while the app has it, so the focus is no guide).
+    focus=$(adb shell dumpsys window windows | grep -m1 -E "Application (Not Responding|Error)")
+    [ -z "$focus" ] && return 0
+    echo "system dialog: $focus"
     adb shell uiautomator dump /sdcard/ui.xml >/dev/null 2>&1
     bounds=$(adb shell cat /sdcard/ui.xml 2>/dev/null | grep -oE 'text="(Wait|OK)"[^>]*bounds="[^"]*"' | head -1 | grep -oE 'bounds="[^"]*"' | grep -oE '[0-9]+' | tr '\n' ' ')
     if [ -n "$bounds" ]; then
@@ -49,6 +51,8 @@ sleep 45
 # test's keys (run 23); they are hidden where the system allows it and answered "Wait" otherwise.
 # (Disabling the launcher instead made the system close the app at once, run 24.)
 adb shell settings put global hide_error_dialogs 1
+# The app logs button positions and the document state only with this property set.
+adb shell setprop debug.wordcraft.autotest 1
 adb install -r "$APK"
 adb shell cmd uimode night no
 adb shell settings put system accelerometer_rotation 0
@@ -151,11 +155,16 @@ shot after-file-page
 adb shell cmd uimode night yes
 sleep 6
 shot night-mode
+# A tap on the top bar's empty middle, in case the change only shows with the next input.
+read -r FX FY < <(button file)
+adb shell input tap $((W / 2)) "${FY:-130}"
+sleep 3
+shot night-mode-after-tap
 
-adb shell settings put system user_rotation 1
-sleep 6
+adb shell wm user-rotation lock 1 || adb shell settings put system user_rotation 1
+sleep 8
 shot landscape
-adb shell settings put system user_rotation 0
+adb shell wm user-rotation lock 0 || adb shell settings put system user_rotation 0
 sleep 4
 
 adb pull /data/anr "$OUT/anr" >/dev/null 2>&1 || true

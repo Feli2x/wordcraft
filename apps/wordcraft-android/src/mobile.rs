@@ -70,6 +70,8 @@ enum Menu {
 
 #[derive(Default)]
 pub struct Mobile {
+    /// Log button positions and the document state for the emulator test (android/test).
+    pub autotest: bool,
     /// "⋯" asked for the full interface on a phone; "Phone view" ends it.
     all_commands: bool,
     menu: Option<Menu>,
@@ -107,8 +109,10 @@ impl Mobile {
             }
             Shown::Phone => self.phone_ui(app, ui, area),
         }
-        self.log_buttons(ui.ctx().pixels_per_point());
-        self.log_doc(app);
+        if self.autotest {
+            self.log_buttons(ui.ctx().pixels_per_point());
+            self.log_doc(app);
+        }
     }
 
     /// Log the body text and the formatting at the caret when they change (for android/test).
@@ -188,7 +192,12 @@ impl Mobile {
                 let _ = app.run("ui.backstage", json!({"value": true, "page": "home"}));
             }
             x = top.max.x - 4.0 - BUTTON / 2.0;
-            for (icon, label, cmd) in [("more", "Alle Befehle", ""), ("save", "Speichern", "file.save"), ("redo", "Wiederholen", "edit.redo"), ("undo", "Rückgängig", "edit.undo")] {
+            for (icon, label, cmd) in [
+                ("more", "Alle Befehle", ""),
+                ("save", "Speichern", "file.save"),
+                ("redo", "Wiederholen", "edit.redo"),
+                ("undo", "Rückgängig", "edit.undo"),
+            ] {
                 let r = Rect::from_center_size(pos2(x, y), Vec2::splat(BUTTON));
                 self.buttons.push((icon, r.center()));
                 if icon_button(ui, r, icon, label, false, fg, accent).clicked() {
@@ -205,7 +214,13 @@ impl Mobile {
         let state: Value = app.session.run("format.state", &json!({})).unwrap_or_default();
         let on = |k: &str| state.get(k).and_then(Value::as_bool).unwrap_or(false);
         egui::Area::new(egui::Id::unique("phone_toolbar")).order(egui::Order::Foreground).fixed_pos(toolbar.min).show(ui.ctx(), |ui| {
-            ui.painter().rect(toolbar, CornerRadius::same(30), bg, Stroke::new(1.0, ui.visuals().widgets.noninteractive.bg_stroke.color), egui::StrokeKind::Inside);
+            ui.painter().rect(
+                toolbar,
+                CornerRadius::same(30),
+                bg,
+                Stroke::new(1.0, ui.visuals().widgets.noninteractive.bg_stroke.color),
+                egui::StrokeKind::Inside,
+            );
             let items: [(&str, &str, Option<&str>, bool); 7] = [
                 ("addShape", "Einfügen", None, self.menu == Some(Menu::Insert)),
                 ("bold", "Fett", Some("format.bold"), on("bold")),
@@ -239,7 +254,13 @@ impl Mobile {
                 .order(egui::Order::Foreground)
                 .fixed_pos(above.min)
                 .show(ui.ctx(), |ui| {
-                    ui.painter().rect(above, CornerRadius::same(16), bg, Stroke::new(1.0, ui.visuals().widgets.noninteractive.bg_stroke.color), egui::StrokeKind::Inside);
+                    ui.painter().rect(
+                        above,
+                        CornerRadius::same(16),
+                        bg,
+                        Stroke::new(1.0, ui.visuals().widgets.noninteractive.bg_stroke.color),
+                        egui::StrokeKind::Inside,
+                    );
                     self.menu_ui(app, ui, menu, above, fg, accent)
                 })
                 .inner;

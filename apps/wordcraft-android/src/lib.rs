@@ -38,10 +38,10 @@ mod android {
 
     use eframe::egui;
     use serde_json::json;
+    use winit::platform::android::activity::AndroidApp;
     use wordcraft_engine::Session;
     use wordcraft_ui_egui::file_dialogs::{FileDialogAnswer, FileDialogRequest};
     use wordcraft_ui_egui::{Services, UiState, WordApp};
-    use winit::platform::android::activity::AndroidApp;
 
     /// Where the app keeps its private state, and where the file browser starts.
     struct Folders {
@@ -66,11 +66,7 @@ mod android {
         // is granted (Settings › Apps › WordCraft › Permissions), else the app's own folder,
         // which a USB connection or a file manager can still reach.
         let shared = Path::new("/storage/emulated/0");
-        let home = if std::fs::read_dir(shared).is_ok() {
-            shared.to_path_buf()
-        } else {
-            external.clone().unwrap_or_else(|| internal.clone())
-        };
+        let home = if std::fs::read_dir(shared).is_ok() { shared.to_path_buf() } else { external.clone().unwrap_or_else(|| internal.clone()) };
         if let Some(ext) = &external {
             let _ = std::fs::create_dir_all(ext);
         }
@@ -88,17 +84,19 @@ mod android {
         Folders { prefs: config.join("ui.json"), recovery: internal.join("recovery") }
     }
 
+    /// A system property (`getprop`), empty when unset.
+    fn prop(name: &str) -> String {
+        std::process::Command::new("/system/bin/getprop")
+            .arg(name)
+            .output()
+            .map(|o| String::from_utf8_lossy(&o.stdout).trim().to_string())
+            .unwrap_or_default()
+    }
+
     /// The Android emulator's Vulkan (software rendering through the host) hangs wgpu at start-up;
     /// its OpenGL ES works. Phones keep wgpu's own choice (Vulkan). `adb shell setprop
     /// debug.wordcraft.wgpu gl` (or `vulkan`) overrides the choice on any device.
     fn choose_graphics_backend() {
-        let prop = |name: &str| {
-            std::process::Command::new("/system/bin/getprop")
-                .arg(name)
-                .output()
-                .map(|o| String::from_utf8_lossy(&o.stdout).trim().to_string())
-                .unwrap_or_default()
-        };
         let wanted = prop("debug.wordcraft.wgpu");
         let emulator = prop("ro.kernel.qemu") == "1" || prop("ro.boot.qemu") == "1" || prop("ro.hardware").contains("ranchu");
         let backend = if !wanted.is_empty() {
@@ -187,7 +185,12 @@ mod android {
                 .interactable(false)
                 .fixed_pos(inner.left_bottom() + egui::vec2(4.0, -16.0))
                 .show(&ctx, |ui| {
-                    ui.label(egui::RichText::new(text).size(10.0).color(egui::Color32::from_rgb(200, 0, 0)).background_color(egui::Color32::from_white_alpha(220)));
+                    ui.label(
+                        egui::RichText::new(text)
+                            .size(10.0)
+                            .color(egui::Color32::from_rgb(200, 0, 0))
+                            .background_color(egui::Color32::from_white_alpha(220)),
+                    );
                 });
         }
 
@@ -213,6 +216,10 @@ mod android {
             if now - self.last_prefs_check > 2.0 {
                 self.last_prefs_check = now;
                 self.save_prefs_if_changed();
+                // For the emulator test: frames still run, and what Android's configuration says.
+                if self.mobile.autotest {
+                    log::info!("autotest alive night={:?} applied={:?}", self.android.config().ui_mode_night(), self.night);
+                }
             }
         }
 
@@ -225,6 +232,9 @@ mod android {
             let night = format!("{:?}", self.android.config().ui_mode_night()) == "Yes";
             raw.system_theme = Some(if night { egui::Theme::Dark } else { egui::Theme::Light });
             if self.night != Some(night) {
+                if self.mobile.autotest {
+                    log::info!("autotest night {night}");
+                }
                 self.night = Some(night);
                 let _ = self.app.run("view.darkMode", json!({"value": night}));
             }
@@ -256,6 +266,8 @@ mod android {
         log::info!("WordCraft Android build #{}", option_env!("GITHUB_RUN_NUMBER").unwrap_or("local"));
         choose_graphics_backend();
         let folders = set_up_folders(&android);
+        // `adb shell setprop debug.wordcraft.autotest 1` (android/test) logs what the test checks.
+        let autotest = prop("debug.wordcraft.autotest") == "1";
         let activity = android.clone();
         let options = eframe::NativeOptions { android_app: Some(android), ..Default::default() };
         log::info!("start-up: starting eframe");
@@ -283,7 +295,15 @@ mod android {
                 }
                 app.start_screen();
                 let saved_prefs = serde_json::to_string_pretty(&app.prefs()).ok();
-                Ok(Box::new(Shell { app, android: activity, mobile: Default::default(), night: None, prefs_path: folders.prefs.clone(), saved_prefs, last_prefs_check: 0.0 }))
+                Ok(Box::new(Shell {
+                    app,
+                    android: activity,
+                    mobile: crate::mobile::Mobile { autotest, ..Default::default() },
+                    night: None,
+                    prefs_path: folders.prefs.clone(),
+                    saved_prefs,
+                    last_prefs_check: 0.0,
+                }))
             }),
         );
         if let Err(e) = result {

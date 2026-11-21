@@ -199,6 +199,36 @@ index 7f1ffb7..458611e 100644
          let v = &self.session.view;
          let want = v.full_screen || v.focus_mode || v.full_screen_view;
          let seen = ctx.input(|i| i.viewport().fullscreen);
+diff --git a/crates/ui-egui/src/canvas/geometry.rs b/crates/ui-egui/src/canvas/geometry.rs
+index 589f0d3..fb87ea9 100644
+--- a/crates/ui-egui/src/canvas/geometry.rs
++++ b/crates/ui-egui/src/canvas/geometry.rs
+@@ -203,7 +203,7 @@ pub fn geometry(app: &WordApp, l: &DocLayout, avail: egui::Vec2) -> Geometry {
+     let sizes: Vec<(f32, f32)> = l.pages.iter().map(|p| (p.w, p.h)).collect();
+     if v.mode == wordcraft_layout::ViewMode::Web {
+         // The sheet runs from side to side of the work area, no centred page with grey margins.
+-        let rects: Vec<Rect> = sizes
++        let mut rects: Vec<Rect> = sizes
+             .iter()
+             .scan(0.0f32, |y, &(w, h)| {
+                 let r = Rect::from_min_size(pos2(0.0, *y), vec2(sane_dim(w, 1e5) * scale, sane_dim(h, 1e6) * scale));
+@@ -211,6 +211,16 @@ pub fn geometry(app: &WordApp, l: &DocLayout, avail: egui::Vec2) -> Geometry {
+                 Some(r)
+             })
+             .collect();
++        // Android: the sheet also fills the work area's width (the scrollbar's strip) and height,
++        // so the phone editor is one surface, not a short sheet over grey.
++        if cfg!(target_os = "android") {
++            for r in &mut rects {
++                r.max.x = r.max.x.max(avail.x);
++            }
++            if let Some(last) = rects.last_mut() {
++                last.max.y = last.max.y.max(avail.y);
++            }
++        }
+         let size = vec2(rects.iter().map(|r| r.right()).fold(avail.x.max(0.0), f32::max), rects.last().map_or(0.0, |r| r.bottom()).max(avail.y));
+         let bands = rects.iter().map(|r| (0.0, r.height())).collect();
+         return Geometry { rects, size, scale, cols: 1, bands };
 diff --git a/crates/ui-egui/src/theme.rs b/crates/ui-egui/src/theme.rs
 index 25a3421..dea2d42 100644
 --- a/crates/ui-egui/src/theme.rs
