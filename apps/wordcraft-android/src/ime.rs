@@ -26,16 +26,29 @@ pub enum Kind {
     Commit(String),
     /// Delete characters before and after the caret.
     Delete { before: usize, after: usize },
+    /// The system's Back: WordCraft's Escape.
+    Back,
 }
 
 impl Op {
-    /// The event WordCraft handles for it.
-    pub fn event(&self) -> egui::Event {
-        egui::Event::Ime(match &self.kind {
-            Kind::Preedit(text) => egui::ImeEvent::Preedit { text: text.clone(), active_range_chars: None },
-            Kind::Commit(text) => egui::ImeEvent::Commit(text.clone()),
-            Kind::Delete { before, after } => egui::ImeEvent::DeleteSurrounding { before_chars: *before, after_chars: *after },
-        })
+    /// The events WordCraft handles for it.
+    pub fn events(&self) -> Vec<egui::Event> {
+        let ime = |e| vec![egui::Event::Ime(e)];
+        match &self.kind {
+            Kind::Preedit(text) => ime(egui::ImeEvent::Preedit { text: text.clone(), active_range_chars: None }),
+            Kind::Commit(text) => ime(egui::ImeEvent::Commit(text.clone())),
+            Kind::Delete { before, after } => ime(egui::ImeEvent::DeleteSurrounding { before_chars: *before, after_chars: *after }),
+            Kind::Back => [true, false]
+                .into_iter()
+                .map(|pressed| egui::Event::Key {
+                    key: egui::Key::Escape,
+                    physical_key: None,
+                    pressed,
+                    repeat: false,
+                    modifiers: egui::Modifiers::NONE,
+                })
+                .collect(),
+        }
     }
 }
 
@@ -56,6 +69,7 @@ pub fn parse(encoded: &str) -> Vec<Op> {
                 0 => Kind::Preedit(text),
                 1 => Kind::Commit(text),
                 2 => Kind::Delete { before: a, after: b },
+                3 => Kind::Back,
                 _ => return None,
             };
             Some(Op { seq, kind })
@@ -197,6 +211,7 @@ mod tests {
         assert_eq!(ops[0].kind, Kind::Preedit("Hal".into()));
         assert_eq!(ops[1], Op { seq: 2, kind: Kind::Commit("Hallo ".into()) });
         assert_eq!(ops[2].kind, Kind::Delete { before: 1, after: 0 });
+        assert_eq!(parse("3\u{1}4\u{1}0\u{1}0\u{1}")[0].kind, Kind::Back);
         assert!(parse("").is_empty());
         assert!(parse("garbage").is_empty());
     }

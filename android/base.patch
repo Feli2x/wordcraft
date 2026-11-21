@@ -201,10 +201,10 @@ index 7f1ffb7..458611e 100644
          let want = v.full_screen || v.focus_mode || v.full_screen_view;
          let seen = ctx.input(|i| i.viewport().fullscreen);
 diff --git a/crates/ui-egui/src/backstage.rs b/crates/ui-egui/src/backstage.rs
-index a49d2f7..e65ad12 100644
+index a49d2f7..6415d39 100644
 --- a/crates/ui-egui/src/backstage.rs
 +++ b/crates/ui-egui/src/backstage.rs
-@@ -76,160 +76,188 @@ pub fn show(app: &mut WordApp, ui: &mut Ui) {
+@@ -76,160 +76,189 @@ pub fn show(app: &mut WordApp, ui: &mut Ui) {
          app.ui.backstage_page = "home".into();
      }
      let mac = app.integrated_titlebar;
@@ -494,7 +494,8 @@ index a49d2f7..e65ad12 100644
 +                let ink = ui.visuals().text_color();
 +                icons::paint(ui.painter(), Rect::from_center_size(pos2(r.min.x + 28.0, r.center().y), vec2(18.0, 18.0)), "chevronLeft", ink, ink);
 +                ui.painter().text(pos2(r.min.x + 52.0, r.center().y), egui::Align2::LEFT_CENTER, tl!("Back"), medium(14.0), ink);
-+                if resp.clicked() {
++                // Escape (the system's Back) returns to the menu; in the menu it closes the File page.
++                if resp.clicked() || (!app.file_dialog_open() && ui.input(|i| i.key_pressed(egui::Key::Escape))) {
 +                    phone_page = false;
 +                }
 +            }

@@ -344,7 +344,7 @@ mod android {
                     log::info!("autotest ime {:?}", op.kind);
                 }
                 self.keyboard.ack = op.seq;
-                raw.events.push(op.event());
+                raw.events.extend(op.events());
             }
             self.app.raw_input_hook(ctx, raw);
         }

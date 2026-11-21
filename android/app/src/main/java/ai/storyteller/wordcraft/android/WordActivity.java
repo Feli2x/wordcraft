@@ -55,6 +55,18 @@ public class WordActivity extends NativeActivity {
         ime.requestFocus();
     }
 
+    /**
+     * The system's Back (button or gesture), when the page did not take it: WordCraft's Escape
+     * (leave a page, close a menu or dialog) instead of ending the app.
+     */
+    @Override
+    public void onBackPressed() {
+        if (ime == null) return;
+        synchronized (ime.lock) {
+            ime.push(ImeView.BACK, "", 0, 0);
+        }
+    }
+
     /** Operations the keyboard made since the last call, encoded (see ImeView.push); "" if none. */
     public String imeDrain() {
         return ime == null ? "" : ime.drain();
@@ -65,7 +77,11 @@ public class WordActivity extends NativeActivity {
      * and the number of the last operation the Rust side has applied.
      */
     public void imeState(String text, int cursor, int anchor, int ack) {
-        if (ime != null) ime.setState(text, cursor, anchor, ack);
+        try {
+            if (ime != null) ime.setState(text, cursor, anchor, ack);
+        } catch (RuntimeException e) {
+            // A state the keyboard cannot take is dropped; the next frame reports it again.
+        }
     }
 
     /** Show or hide the soft keyboard. */
@@ -119,7 +135,7 @@ public class WordActivity extends NativeActivity {
 
     /** The window's text editor: invisible, always focused. */
     static final class ImeView extends View {
-        static final int PREEDIT = 0, COMMIT = 1, DELETE = 2;
+        static final int PREEDIT = 0, COMMIT = 1, DELETE = 2, BACK = 3;
 
         final Object lock = new Object();
         /** The committed text around the caret with the composing text in it, as the keyboard sees it. */
@@ -139,6 +155,8 @@ public class WordActivity extends NativeActivity {
             super(context);
             setFocusable(true);
             setFocusableInTouchMode(true);
+            // The empty buffer has the caret at 0 (without it the selection reads as -1).
+            Selection.setSelection(buf, 0);
         }
 
         @Override
@@ -289,8 +307,8 @@ public class WordActivity extends NativeActivity {
             synchronized (view.lock) {
                 view.regionPending = false;
                 String s = view.buf.toString();
-                int c = Math.min(Selection.getSelectionStart(view.buf), s.length());
-                int se = Math.min(Selection.getSelectionEnd(view.buf), s.length());
+                int c = Math.max(0, Math.min(Selection.getSelectionStart(view.buf), s.length()));
+                int se = Math.max(c, Math.min(Selection.getSelectionEnd(view.buf), s.length()));
                 int from = Math.max(0, c - before);
                 int to = Math.min(s.length(), se + after);
                 view.push(ImeView.DELETE, "", s.codePointCount(from, c), s.codePointCount(se, to));
