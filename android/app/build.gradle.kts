@@ -1,6 +1,6 @@
 // Packages the Rust library (libwordcraft_android.so, built by cargo-ndk into
-// src/main/jniLibs/<abi>/) into an APK. There is no Java or Kotlin code: the manifest starts
-// Android's own NativeActivity, which loads the library and calls `android_main`.
+// src/main/jniLibs/<abi>/) into an APK. The only Java is WordActivity, a NativeActivity (which
+// loads the library and calls `android_main`) with a text-input connection for the keyboard.
 plugins {
     id("com.android.application")
 }

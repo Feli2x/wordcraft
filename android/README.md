@@ -1,6 +1,6 @@
 # WordCraft für Android (experimentell)
 
-Dieser Ordner verpackt `apps/wordcraft-android` (Rust, eframe/egui auf einer `NativeActivity`) als APK für arm64-Geräte (Android 8.0+).
+Dieser Ordner verpackt `apps/wordcraft-android` (Rust, eframe/egui auf einer `NativeActivity`, dazu eine kleine Java-Klasse für die Tastatur) als APK für arm64-Geräte (Android 8.0+).
 
 ## APK über GitHub Actions bauen
 
@@ -38,7 +38,7 @@ Der Job `emulator-test` installiert die x86_64-APK in einem Android-14-Emulator,
 
 ## Bekannte Einschränkungen
 
-- Bildschirmtastatur: Eine `NativeActivity` erhält nur einfache Tastenereignisse (keine Autokorrektur, kein Wischen, Umlaute je nach Tastatur-App). Eine Hardware-Tastatur funktioniert vollständig.
+- Bildschirmtastatur: `WordActivity.java` stellt der Tastatur eine echte Eingabeverbindung (`InputConnection`) bereit, die den Text um den Cursor spiegelt. Wischen, Wortvorschläge, Autokorrektur und automatische Großschreibung am Satzanfang funktionieren damit wie in anderen Apps; WordCraft verarbeitet dieselben Eingabe-Ereignisse wie bei Eingabemethoden auf dem Desktop. Der Emulator-Test spielt Tastaturoperationen über einen Test-Empfänger ein (`ime-test.txt`). Eine Hardware-Tastatur funktioniert vollständig.
 - Kein Systemdateidialog (eingebauter Browser stattdessen), kein Drucken, keine Updates, keine Sprachpaket-Downloads.
 - Muss Android die Activity neu erzeugen (z. B. nach einer Änderung der Systemfarben oder eines Overlays), beendet sich die App, statt einzufrieren; ungesicherte Änderungen der letzten Sekunden stellt Datei › Wiederherstellen wieder her.
 - „ArtCraft“ und „WordCraft“ sind Marken von ArtCraft und nicht von der MIT/Apache-Lizenz gedeckt: für die Weitergabe eines eigenen Builds bitte umbenennen.

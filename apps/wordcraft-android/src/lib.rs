@@ -1,7 +1,7 @@
 //! WordCraft on Android.
 //!
 //! Runs the same [`wordcraft_ui_egui::WordApp`] as the desktop and web apps through eframe's
-//! native runner on a `NativeActivity` (no Java code in the APK). Build the shared library with
+//! native runner on a `NativeActivity` (one small Java class for the keyboard). Build the shared library with
 //! `cargo ndk -t arm64-v8a -o android/app/src/main/jniLibs build -p wordcraft-android --release`
 //! and package it with the Gradle project in `android/` (see `android/README.md`).
 //!
@@ -24,12 +24,15 @@
 //!   scales from there.
 //! - Dark mode follows Android's (Settings › Display): the interface theme "System" gets Android's
 //!   answer, and pages turn dark with it (View › Switch Modes still changes that by hand).
-//! - Text input: hardware keyboards work fully; the on-screen keyboard is shown when a text field
-//!   or the page takes focus, but a NativeActivity only receives plain key events from it (no
-//!   autocorrect or swipe typing).
+//! - Text input: hardware keyboards work fully. The on-screen keyboard is shown when a text field
+//!   or the page takes focus and talks to WordCraft through a real input connection
+//!   (`WordActivity.java`, `ime.rs`): swipe typing, suggestions, autocorrection and automatic
+//!   capital letters work as in any Android app.
 
 #[cfg_attr(not(target_os = "android"), allow(dead_code))]
 mod config;
+#[cfg_attr(not(target_os = "android"), allow(dead_code))]
+mod ime;
 #[cfg_attr(not(target_os = "android"), allow(dead_code))]
 mod mobile;
 
@@ -177,6 +180,23 @@ mod android {
         /// The preferences as last written, to write only when they change.
         saved_prefs: Option<String>,
         last_prefs_check: f64,
+        /// The on-screen keyboard's state (see `ime.rs`).
+        keyboard: Keyboard,
+    }
+
+    /// What the shell has told the keyboard, and what it has applied from it.
+    #[derive(Default)]
+    struct Keyboard {
+        /// The last operation taken from the keyboard (the keyboard waits for it before it
+        /// believes the caret's surroundings).
+        ack: i32,
+        /// The state last reported: text around the caret, caret and anchor (UTF-16), the ack.
+        reported: Option<(String, i32, i32, i32)>,
+        /// Whether the keyboard was last asked to show.
+        visible: Option<bool>,
+        /// When the surroundings were last reported (the keyboard may refuse one while it composes).
+        last_report: f64,
+        test_enabled: bool,
     }
 
     impl Shell {
@@ -222,6 +242,43 @@ mod android {
                             .background_color(egui::Color32::from_white_alpha(220)),
                     );
                 });
+        }
+
+        /// Show the keyboard when the page or a text field wants text, hide it when none does, and
+        /// tell it the text around the caret, so its suggestions and capital letters fit.
+        fn sync_keyboard(&mut self, ctx: &egui::Context) {
+            let ime = ctx.output(|o| o.ime.clone());
+            let wants = ime.is_some();
+            let activity = self.android.activity_as_ptr();
+            if self.keyboard.visible != Some(wants) {
+                self.keyboard.visible = Some(wants);
+                if self.mobile.autotest {
+                    log::info!("autotest keyboard wanted={wants}");
+                }
+                // SAFETY: the activity of `self.android`, which the Shell keeps alive.
+                unsafe { crate::ime::set_visible(activity, wants) };
+            }
+            let Some(payload) = ime.as_ref().and_then(|i| i.surrounding_text.available().cloned()) else { return };
+            let state = (
+                payload.text.clone(),
+                crate::ime::utf16_offset(&payload.text, payload.cursor),
+                crate::ime::utf16_offset(&payload.text, payload.anchor),
+                self.keyboard.ack,
+            );
+            let now = ctx.input(|i| i.time);
+            // A state the keyboard refused (it was composing, or an operation was pending) is
+            // offered again shortly; one it took is not repeated.
+            if self.keyboard.reported.as_ref() != Some(&state) || now - self.keyboard.last_report > 0.3 {
+                self.keyboard.last_report = now;
+                // SAFETY: as above.
+                unsafe { crate::ime::set_state(activity, &state.0, state.1, state.2, state.3) };
+                self.keyboard.reported = Some(state);
+            }
+            if wants {
+                // The keyboard's operations also wake the loop (`WordActivity.nativeWake`); this
+                // is the fallback should that fail.
+                ctx.request_repaint_after(std::time::Duration::from_millis(100));
+            }
         }
 
         fn save_prefs_if_changed(&mut self) {
@@ -274,6 +331,21 @@ mod android {
                 self.night = Some(night);
                 let _ = self.app.run("view.darkMode", json!({"value": night}));
             }
+            // What the on-screen keyboard did since the last frame: composing, committing, deleting.
+            let _ = crate::ime::WAKE.set(ctx.clone());
+            if self.mobile.autotest && !self.keyboard.test_enabled {
+                self.keyboard.test_enabled = true;
+                // SAFETY: the activity of `self.android`, which the Shell keeps alive.
+                unsafe { crate::ime::enable_test(self.android.activity_as_ptr()) };
+            }
+            // SAFETY: as above.
+            for op in unsafe { crate::ime::drain(self.android.activity_as_ptr()) } {
+                if self.mobile.autotest {
+                    log::info!("autotest ime {:?}", op.kind);
+                }
+                self.keyboard.ack = op.seq;
+                raw.events.push(op.event());
+            }
             self.app.raw_input_hook(ctx, raw);
         }
 
@@ -287,6 +359,7 @@ mod android {
             // dp are egui points here (WordCraft's scale follows Android's density, see above).
             let smallest = self.current.map(|c| c.smallest_width_dp as f32);
             self.mobile.ui(&mut self.app, ui, inner, smallest);
+            self.sync_keyboard(ui.ctx());
             if self.mobile.autotest {
                 self.diagnostics(ui, inner);
             }
@@ -347,6 +420,7 @@ mod android {
                     prefs_path: folders.prefs.clone(),
                     saved_prefs,
                     last_prefs_check: 0.0,
+                    keyboard: Keyboard::default(),
                 }))
             }),
         );

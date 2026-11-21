@@ -58,7 +58,7 @@ adb shell cmd uimode night no
 adb shell settings put system accelerometer_rotation 0
 adb shell settings put system user_rotation 0
 adb logcat -c
-adb shell am start -W -n "$PKG/android.app.NativeActivity"
+adb shell am start -W -n "$PKG/.WordActivity"
 sleep 20
 shot start-page
 
@@ -92,6 +92,9 @@ read -r _ BOTTOM < <(button bold)
 adb shell input tap $((W / 2)) $(( (${TOP:-200} + ${BOTTOM:-1200}) / 3 ))
 sleep 4
 shot keyboard-open
+# Whether the on-screen keyboard is up (a real input connection exists and the keyboard shows).
+{ adb shell dumpsys input_method | grep -E "mInputShown|mShowRequested|isInputViewShown|mCurId" | head -8; } > "$OUT/keyboard-state.txt" 2>&1
+cat "$OUT/keyboard-state.txt"
 
 type_text "Hallo "
 sleep 2
@@ -137,6 +140,26 @@ sleep 2
 tap undo
 sleep 2
 shot after-undo
+
+# What a keyboard does through the input connection (compose, commit, delete), played by the
+# app's test receiver: swipe typing and autocorrection arrive as exactly these operations.
+ime() { adb shell am broadcast -a ai.storyteller.wordcraft.android.IME_TEST "$@" >/dev/null 2>&1; sleep 1.5; }
+ime --es op commit --es text " "
+ime --es op compose --es text "Ke"
+ime --es op compose --es text "Keyb"
+shot ime-composing
+ime --es op commit --es text "Keyboard "
+ime --es op compose --es text "Wischen"
+ime --es op finish
+ime --es op delete --ei before 2 --ei after 0
+sleep 2
+shot ime-committed
+{
+    echo "== keyboard operations the app received"; adb logcat -d -s WordCraft:I | grep "autotest ime"
+    echo "== document after them"; doc
+    echo "== keyboard shown"; adb shell dumpsys input_method | grep -E "mInputShown|isInputViewShown" | head -3
+} > "$OUT/ime-test.txt"
+cat "$OUT/ime-test.txt"
 
 tap toolbarMore
 sleep 4

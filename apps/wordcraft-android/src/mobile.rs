@@ -75,8 +75,9 @@ enum Tool {
     More,
 }
 
-/// The floating toolbar's buttons.
-const TOOLBAR_TOOLS: [Tool; 7] = [Tool::Insert, Tool::Bold, Tool::Italic, Tool::Underline, Tool::Highlight, Tool::Color, Tool::More];
+/// The floating toolbar's buttons. (The top bar has "⋯"; the one-row layout has none above it,
+/// so it keeps its own in [`COMPACT_TOOLS`].)
+const TOOLBAR_TOOLS: [Tool; 6] = [Tool::Insert, Tool::Bold, Tool::Italic, Tool::Underline, Tool::Highlight, Tool::Color];
 /// The single row of the compact layout: the top bar's buttons and the toolbar's.
 const COMPACT_TOOLS: [Tool; 11] = [
     Tool::File,
