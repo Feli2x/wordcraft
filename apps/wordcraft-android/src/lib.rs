@@ -298,7 +298,7 @@ mod android {
                 Ok(Box::new(Shell {
                     app,
                     android: activity,
-                    mobile: crate::mobile::Mobile { autotest, ..Default::default() },
+                    mobile: crate::mobile::Mobile::new(autotest),
                     night: None,
                     prefs_path: folders.prefs.clone(),
                     saved_prefs,

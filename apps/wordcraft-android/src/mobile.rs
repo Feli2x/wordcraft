@@ -86,6 +86,11 @@ pub struct Mobile {
 
 impl Mobile {
     /// Lay out the app in `area` (the part of the window the system bars leave free).
+    /// The phone layout; `autotest` logs what the emulator test checks (button positions, text).
+    pub fn new(autotest: bool) -> Self {
+        Self { autotest, ..Default::default() }
+    }
+
     pub fn ui(&mut self, app: &mut WordApp, ui: &mut Ui, area: Rect) {
         let phone = area.width() < PHONE_WIDTH;
         let shown = if phone && !self.all_commands && !app.ui.backstage { Shown::Phone } else { Shown::Desktop };
