@@ -165,7 +165,7 @@ shot ime-committed
 } > "$OUT/ime-test.txt"
 cat "$OUT/ime-test.txt"
 
-tap toolbarMore
+tap more
 sleep 4
 shot all-commands
 tap phoneView
