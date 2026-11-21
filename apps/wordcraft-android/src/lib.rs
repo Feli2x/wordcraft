@@ -86,6 +86,29 @@ mod android {
         Folders { prefs: config.join("ui.json"), recovery: internal.join("recovery") }
     }
 
+    /// winit ignores Android's `onDestroy`, and android-activity's `onDestroy` waits until
+    /// `android_main` has returned: any restart of the activity (a change of the system's colours
+    /// or fonts, leaving with Back) froze the app until Android closed it as not responding
+    /// (emulator run 29). This thread notices the destruction and ends the process instead; the
+    /// recovery copies (every 10 s) keep the work, and Android starts the app again if it restarts
+    /// the activity. `stop` ends the watch when `android_main` returns by itself.
+    fn watch_for_destroy(android: AndroidApp, stop: std::sync::Arc<std::sync::atomic::AtomicBool>) {
+        let spawned = std::thread::Builder::new().name("wordcraft-destroy".into()).spawn(move || {
+            while !stop.load(std::sync::atomic::Ordering::Relaxed) {
+                std::thread::sleep(std::time::Duration::from_millis(250));
+                // SAFETY: `android` (a clone of the app's AndroidApp) is alive in this thread.
+                if unsafe { crate::config::destroyed(android.activity_as_ptr()) } == Some(true) {
+                    log::warn!("the activity is being destroyed and the event loop cannot end: ending the process");
+                    std::thread::sleep(std::time::Duration::from_millis(200));
+                    std::process::exit(0);
+                }
+            }
+        });
+        if let Err(e) = spawned {
+            log::warn!("no destroy watch: {e}");
+        }
+    }
+
     /// A system property (`getprop`), empty when unset.
     fn prop(name: &str) -> String {
         std::process::Command::new("/system/bin/getprop")
@@ -282,6 +305,8 @@ mod android {
         // `adb shell setprop debug.wordcraft.autotest 1` (android/test) logs what the test checks.
         let autotest = prop("debug.wordcraft.autotest") == "1";
         let activity = android.clone();
+        let stop_watch = std::sync::Arc::new(std::sync::atomic::AtomicBool::new(false));
+        watch_for_destroy(android.clone(), stop_watch.clone());
         let options = eframe::NativeOptions { android_app: Some(android), ..Default::default() };
         log::info!("start-up: starting eframe");
         let result = eframe::run_native(
@@ -321,6 +346,7 @@ mod android {
                 }))
             }),
         );
+        stop_watch.store(true, std::sync::atomic::Ordering::Relaxed);
         if let Err(e) = result {
             log::error!("WordCraft could not start: {e}");
         }

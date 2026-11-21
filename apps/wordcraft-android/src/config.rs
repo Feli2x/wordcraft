@@ -61,3 +61,25 @@ pub unsafe fn current(activity: *mut std::ffi::c_void) -> Option<Current> {
         }
     }
 }
+
+/// Whether Android has begun destroying the activity (`Activity.isDestroyed()`, already true while
+/// `onDestroy` runs); `None` if it cannot be read.
+///
+/// # Safety
+///
+/// As for [`current`].
+pub unsafe fn destroyed(activity: *mut std::ffi::c_void) -> Option<bool> {
+    if activity.is_null() {
+        return None;
+    }
+    let vm = jni::JavaVM::singleton().ok()?;
+    let raw = activity as jni::sys::jobject;
+    let read: jni::errors::Result<bool> = vm.attach_current_thread(|env| {
+        env.with_local_frame(4, |env| {
+            // SAFETY: as in `current`.
+            let activity = unsafe { env.as_cast_raw::<Global<JObject>>(&raw)? };
+            env.call_method(&*activity, jni_str!("isDestroyed"), jni_sig!("()Z"), &[])?.z()
+        })
+    });
+    read.ok()
+}

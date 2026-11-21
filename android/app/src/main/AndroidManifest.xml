@@ -37,7 +37,7 @@
             android:launchMode="singleTask"
             android:resizeableActivity="true"
             android:windowSoftInputMode="adjustResize"
-            android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|keyboard|keyboardHidden|navigation|uiMode|density|fontScale|locale|layoutDirection">
+            android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|keyboard|keyboardHidden|navigation|uiMode|density|fontScale|fontWeightAdjustment|locale|layoutDirection|colorMode|touchscreen|mcc|mnc|grammaticalGender">
             <meta-data
                 android:name="android.app.lib_name"
                 android:value="wordcraft_android" />

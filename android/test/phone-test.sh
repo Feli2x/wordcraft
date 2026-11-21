@@ -167,6 +167,21 @@ shot landscape
 adb shell wm user-rotation lock 0 || adb shell settings put system user_rotation 0
 sleep 4
 
+# A restart of the activity that no app can opt out of (an overlay changes every app's
+# resources): the app must not freeze ("isn't responding"); it ends and Android starts it again.
+pid_before=$(adb shell pidof "$PKG")
+adb shell cmd overlay enable com.android.internal.display.cutout.emulation.corner
+sleep 15
+pid_after=$(adb shell pidof "$PKG")
+shot after-activity-restart
+adb shell cmd overlay disable com.android.internal.display.cutout.emulation.corner
+sleep 10
+{
+    echo "process before the restart: ${pid_before:-none}, after: ${pid_after:-none}"
+    adb logcat -d | grep -E "ANR in $PKG" || echo "no ANR"
+} > "$OUT/activity-restart.txt"
+cat "$OUT/activity-restart.txt"
+
 adb pull /data/anr "$OUT/anr" >/dev/null 2>&1 || true
 # The document after each step, as the app logged it (text and formatting at the caret).
 adb logcat -d -s WordCraft:I | grep "autotest doc" > "$OUT/doc-states.txt" || true
