@@ -104,6 +104,13 @@ public class WordActivity extends NativeActivity {
                 else if ("finish".equals(op)) c.finishComposingText();
                 else if ("delete".equals(op)) c.deleteSurroundingText(intent.getIntExtra("before", 1), intent.getIntExtra("after", 0));
                 else if ("region".equals(op)) c.setComposingRegion(intent.getIntExtra("start", 0), intent.getIntExtra("end", 0));
+                else if ("word".equals(op)) {
+                    // The keyboard marks the word before the caret (to show suggestions for it).
+                    String t = ime.buf.toString();
+                    int e = Selection.getSelectionEnd(ime.buf), st = e;
+                    while (st > 0 && Character.isLetterOrDigit(t.charAt(st - 1))) st--;
+                    c.setComposingRegion(st, e);
+                }
             }
         };
         if (Build.VERSION.SDK_INT >= 33) registerReceiver(receiver, filter, Context.RECEIVER_EXPORTED);
@@ -119,6 +126,14 @@ public class WordActivity extends NativeActivity {
         final SpannableStringBuilder buf = new SpannableStringBuilder();
         final StringBuilder out = new StringBuilder();
         int seq = 0;
+        /**
+         * The keyboard marked text that is in the document (the word at the caret, to show its
+         * suggestions) as composing. WordCraft still has that text as ordinary text; it is taken
+         * out only when the keyboard replaces it (see {@link #takeRegion}). [regionStart, regionEnd)
+         * are buffer offsets, the caret in between them at the time.
+         */
+        boolean regionPending = false;
+        int regionBefore = 0, regionAfter = 0;
 
         ImeView(Context context) {
             super(context);
@@ -157,6 +172,16 @@ public class WordActivity extends NativeActivity {
             wake();
         }
 
+        /**
+         * The keyboard now replaces the text it marked (setComposingText or commitText): take that
+         * text out of the document first, so the replacement does not come on top of it.
+         */
+        void takeRegion() {
+            if (!regionPending) return;
+            regionPending = false;
+            push(DELETE, "", regionBefore, regionAfter);
+        }
+
         String drain() {
             synchronized (lock) {
                 String s = out.toString();
@@ -176,14 +201,14 @@ public class WordActivity extends NativeActivity {
         /** The committed text: the buffer without its composing part. */
         String committed() {
             int s = composingStart(), e = composingEnd();
-            if (s < 0 || e < s) return buf.toString();
+            if (regionPending || s < 0 || e < s) return buf.toString();
             return buf.subSequence(0, s).toString() + buf.subSequence(e, buf.length()).toString();
         }
 
         /** An offset of the buffer as an offset of the committed text. */
         int toCommitted(int off) {
             int s = composingStart(), e = composingEnd();
-            if (s < 0 || e < s) return off;
+            if (regionPending || s < 0 || e < s) return off;
             if (off <= s) return off;
             if (off >= e) return off - (e - s);
             return s;
@@ -199,6 +224,7 @@ public class WordActivity extends NativeActivity {
                 if (committed().equals(text) && c == cursor && a == anchor) return;
                 // The caret moved, or the text changed other than by the keyboard: start over.
                 BaseInputConnection.removeComposingSpans(buf);
+                regionPending = false;
                 buf.replace(0, buf.length(), text);
                 Selection.setSelection(buf, Math.min(anchor, text.length()), Math.min(cursor, text.length()));
                 restart = true;
@@ -232,6 +258,7 @@ public class WordActivity extends NativeActivity {
         @Override
         public boolean setComposingText(CharSequence text, int newCursorPosition) {
             synchronized (view.lock) {
+                view.takeRegion();
                 view.push(ImeView.PREEDIT, text.toString(), 0, 0);
                 return super.setComposingText(text, newCursorPosition);
             }
@@ -240,6 +267,7 @@ public class WordActivity extends NativeActivity {
         @Override
         public boolean commitText(CharSequence text, int newCursorPosition) {
             synchronized (view.lock) {
+                view.takeRegion();
                 view.push(ImeView.COMMIT, text.toString(), 0, 0);
                 return super.commitText(text, newCursorPosition);
             }
@@ -249,7 +277,9 @@ public class WordActivity extends NativeActivity {
         public boolean finishComposingText() {
             synchronized (view.lock) {
                 int s = view.composingStart(), e = view.composingEnd();
-                if (s >= 0 && e > s) view.push(ImeView.COMMIT, view.buf.subSequence(s, e).toString(), 0, 0);
+                // Text the keyboard only marked is in the document already: nothing to commit.
+                if (view.regionPending) view.regionPending = false;
+                else if (s >= 0 && e > s) view.push(ImeView.COMMIT, view.buf.subSequence(s, e).toString(), 0, 0);
                 return super.finishComposingText();
             }
         }
@@ -257,6 +287,7 @@ public class WordActivity extends NativeActivity {
         @Override
         public boolean deleteSurroundingText(int before, int after) {
             synchronized (view.lock) {
+                view.regionPending = false;
                 String s = view.buf.toString();
                 int c = Math.min(Selection.getSelectionStart(view.buf), s.length());
                 int se = Math.min(Selection.getSelectionEnd(view.buf), s.length());
@@ -270,6 +301,7 @@ public class WordActivity extends NativeActivity {
         @Override
         public boolean deleteSurroundingTextInCodePoints(int before, int after) {
             synchronized (view.lock) {
+                view.regionPending = false;
                 view.push(ImeView.DELETE, "", before, after);
                 return super.deleteSurroundingTextInCodePoints(before, after);
             }
@@ -279,16 +311,18 @@ public class WordActivity extends NativeActivity {
         public boolean setComposingRegion(int start, int end) {
             synchronized (view.lock) {
                 int s = Math.max(0, Math.min(start, end)), e = Math.min(view.buf.length(), Math.max(start, end));
-                int c = Selection.getSelectionEnd(view.buf);
+                int c = Math.min(view.buf.length(), Math.max(0, Selection.getSelectionEnd(view.buf)));
                 String text = view.buf.toString();
-                // The keyboard takes the word at the caret back into composition (a tap on a word,
-                // or Backspace after it): WordCraft removes it and shows it as the pre-edit text.
+                // The keyboard takes the word at the caret into composition (to offer suggestions for it).
+                // The word stays in the document until the keyboard replaces it.
                 if (view.composingStart() < 0 && s < e && s <= c && c <= e) {
-                    view.push(ImeView.DELETE, "", text.codePointCount(s, c), text.codePointCount(c, e));
-                    view.push(ImeView.PREEDIT, text.substring(s, e), 0, 0);
+                    view.regionPending = true;
+                    view.regionBefore = text.codePointCount(s, c);
+                    view.regionAfter = text.codePointCount(c, e);
                     return super.setComposingRegion(s, e);
                 }
-                return true;
+                view.regionPending = false;
+                return super.setComposingRegion(s, e);
             }
         }
 

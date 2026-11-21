@@ -144,14 +144,18 @@ shot after-undo
 # What a keyboard does through the input connection (compose, commit, delete), played by the
 # app's test receiver: swipe typing and autocorrection arrive as exactly these operations.
 ime() { adb shell am broadcast -a ai.storyteller.wordcraft.android.IME_TEST "$@" >/dev/null 2>&1; sleep 1.5; }
-ime --es op commit --es text " "
+ime --es op commit --es text "."
 ime --es op compose --es text "Ke"
 ime --es op compose --es text "Keyb"
 shot ime-composing
-ime --es op commit --es text "Keyboard "
+ime --es op commit --es text "Keyboard."
 ime --es op compose --es text "Wischen"
 ime --es op finish
 ime --es op delete --ei before 2 --ei after 0
+# The keyboard takes the word before the caret back into composition and replaces it (a suggestion).
+ime --es op word
+ime --es op compose --es text "Wischer"
+ime --es op finish
 sleep 2
 shot ime-committed
 {
