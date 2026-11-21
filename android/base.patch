@@ -223,7 +223,7 @@ index 511af65..3cfd453 100644
              // Render before painting to keep the frame sharp immediately after an edit or
              // zoom. Tiles are fixed to raster-pixel boundaries, independent of scrolling.
 diff --git a/crates/ui-egui/src/canvas/geometry.rs b/crates/ui-egui/src/canvas/geometry.rs
-index 589f0d3..fb87ea9 100644
+index 589f0d3..0522ae8 100644
 --- a/crates/ui-egui/src/canvas/geometry.rs
 +++ b/crates/ui-egui/src/canvas/geometry.rs
 @@ -203,7 +203,7 @@ pub fn geometry(app: &WordApp, l: &DocLayout, avail: egui::Vec2) -> Geometry {
@@ -235,23 +235,24 @@ index 589f0d3..fb87ea9 100644
              .iter()
              .scan(0.0f32, |y, &(w, h)| {
                  let r = Rect::from_min_size(pos2(0.0, *y), vec2(sane_dim(w, 1e5) * scale, sane_dim(h, 1e6) * scale));
-@@ -211,6 +211,16 @@ pub fn geometry(app: &WordApp, l: &DocLayout, avail: egui::Vec2) -> Geometry {
-                 Some(r)
+@@ -212,6 +212,17 @@ pub fn geometry(app: &WordApp, l: &DocLayout, avail: egui::Vec2) -> Geometry {
              })
              .collect();
-+        // Android: the sheet also fills the work area's width (the scrollbar's strip) and height,
-+        // so the phone editor is one surface, not a short sheet over grey.
+         let size = vec2(rects.iter().map(|r| r.right()).fold(avail.x.max(0.0), f32::max), rects.last().map_or(0.0, |r| r.bottom()).max(avail.y));
++        // Android: the sheet also fills the work area's width (with the scrollbar's strip) and
++        // height, so the phone editor is one surface, not a short sheet over grey. After `size`,
++        // so the wider sheet does not make the view scroll sideways.
 +        if cfg!(target_os = "android") {
 +            for r in &mut rects {
-+                r.max.x = r.max.x.max(avail.x);
++                r.max.x = r.max.x.max(avail.x + super::SCROLLBAR);
 +            }
 +            if let Some(last) = rects.last_mut() {
 +                last.max.y = last.max.y.max(avail.y);
 +            }
 +        }
-         let size = vec2(rects.iter().map(|r| r.right()).fold(avail.x.max(0.0), f32::max), rects.last().map_or(0.0, |r| r.bottom()).max(avail.y));
          let bands = rects.iter().map(|r| (0.0, r.height())).collect();
          return Geometry { rects, size, scale, cols: 1, bands };
+     }
 diff --git a/crates/ui-egui/src/theme.rs b/crates/ui-egui/src/theme.rs
 index 25a3421..dea2d42 100644
 --- a/crates/ui-egui/src/theme.rs

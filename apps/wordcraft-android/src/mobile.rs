@@ -52,6 +52,90 @@ const COLORS: [(&str, Color32); 7] = [
     ("7030A0", Color32::from_rgb(0x70, 0x30, 0xA0)),
 ];
 
+/// Below this height (in points) the phone editor puts all its buttons in one row.
+const COMPACT_HEIGHT: f32 = 300.0;
+
+/// A button of the phone editor.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+enum Tool {
+    File,
+    Undo,
+    Redo,
+    Save,
+    /// "⋯" in the top bar.
+    AllCommands,
+    Insert,
+    Bold,
+    Italic,
+    Underline,
+    Highlight,
+    Color,
+    /// "⋯" in the toolbar.
+    More,
+}
+
+/// The floating toolbar's buttons.
+const TOOLBAR_TOOLS: [Tool; 7] = [Tool::Insert, Tool::Bold, Tool::Italic, Tool::Underline, Tool::Highlight, Tool::Color, Tool::More];
+/// The single row of the compact layout: the top bar's buttons and the toolbar's.
+const COMPACT_TOOLS: [Tool; 11] = [
+    Tool::File,
+    Tool::Undo,
+    Tool::Redo,
+    Tool::Save,
+    Tool::Insert,
+    Tool::Bold,
+    Tool::Italic,
+    Tool::Underline,
+    Tool::Highlight,
+    Tool::Color,
+    Tool::More,
+];
+
+impl Tool {
+    /// The name the emulator test taps it by, and its icon (File is a text button).
+    fn name(self) -> &'static str {
+        match self {
+            Tool::File => "file",
+            Tool::Undo => "undo",
+            Tool::Redo => "redo",
+            Tool::Save => "save",
+            Tool::AllCommands => "more",
+            Tool::Insert => "addShape",
+            Tool::Bold => "bold",
+            Tool::Italic => "italic",
+            Tool::Underline => "underline",
+            Tool::Highlight => "highlight",
+            Tool::Color => "fontcolor",
+            Tool::More => "toolbarMore",
+        }
+    }
+
+    fn icon(self) -> &'static str {
+        match self {
+            Tool::AllCommands | Tool::More => "more",
+            t => t.name(),
+        }
+    }
+
+    /// The accessible name (the visible label for File).
+    fn label(self) -> &'static str {
+        match self {
+            Tool::File => "Datei",
+            Tool::Undo => "Rückgängig",
+            Tool::Redo => "Wiederholen",
+            Tool::Save => "Speichern",
+            Tool::AllCommands => "Alle Befehle",
+            Tool::Insert => "Einfügen",
+            Tool::Bold => "Fett",
+            Tool::Italic => "Kursiv",
+            Tool::Underline => "Unterstrichen",
+            Tool::Highlight => "Hervorheben",
+            Tool::Color => "Schriftfarbe",
+            Tool::More => "Weitere Befehle",
+        }
+    }
+}
+
 /// What the screen shows.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 enum Shown {
@@ -178,83 +262,80 @@ impl Mobile {
         if !app.session.view.full_screen_view {
             let _ = app.run("view.fullScreenView", json!({"value": true}));
         }
-        let top = Rect::from_min_max(area.min, pos2(area.max.x, area.min.y + BAR));
-        let toolbar = Rect::from_min_max(pos2(area.min.x + MARGIN, area.max.y - MARGIN - TOOLBAR), pos2(area.max.x - MARGIN, area.max.y - MARGIN));
-        // The document: from under the top bar (Full Screen View's own bar slides under it) to
-        // above the toolbar, so the caret is never behind either.
-        let doc = Rect::from_min_max(pos2(area.min.x, top.max.y - SCREEN_BAR), pos2(area.max.x, toolbar.min.y - MARGIN));
+        // Too little height for two bars (landscape with the keyboard open): one row along the
+        // bottom with every button, and the document above it.
+        let compact = area.height() < COMPACT_HEIGHT;
+        let (top, toolbar) = if compact {
+            let toolbar = Rect::from_min_max(pos2(area.min.x + 4.0, area.max.y - 4.0 - BUTTON), pos2(area.max.x - 4.0, area.max.y - 4.0));
+            (Rect::from_min_max(area.min, pos2(area.max.x, area.min.y)), toolbar)
+        } else {
+            let top = Rect::from_min_max(area.min, pos2(area.max.x, area.min.y + BAR));
+            let toolbar =
+                Rect::from_min_max(pos2(area.min.x + MARGIN, area.max.y - MARGIN - TOOLBAR), pos2(area.max.x - MARGIN, area.max.y - MARGIN));
+            (top, toolbar)
+        };
+        // The document: from under the top bar (Full Screen View's own bar is cut off above it)
+        // to above the toolbar, so the caret is never behind either.
+        let doc = Rect::from_min_max(pos2(area.min.x, top.max.y - SCREEN_BAR), pos2(area.max.x, toolbar.min.y - 4.0));
+        let shown = Rect::from_min_max(pos2(area.min.x, top.max.y), doc.max);
         let (bg, fg) = (ui.visuals().panel_fill, ui.visuals().text_color());
         ui.painter().rect_filled(Rect::from_min_max(pos2(area.min.x, doc.max.y), area.max), 0.0, ui.visuals().extreme_bg_color);
-        ui.scope_builder(UiBuilder::new().max_rect(doc), |ui| app.ui(ui));
-
-        // The bars above the document, in their own layer so they get the touches first.
-        let accent = ui.visuals().selection.bg_fill;
-        egui::Area::new(egui::Id::unique("phone_top_bar")).order(egui::Order::Foreground).fixed_pos(top.min).show(ui.ctx(), |ui| {
-            ui.set_clip_rect(top);
-            ui.painter().rect_filled(top, 0.0, bg);
-            ui.painter().line_segment([top.left_bottom(), top.right_bottom()], Stroke::new(1.0, ui.visuals().widgets.noninteractive.bg_stroke.color));
-            let mut x = top.min.x + 4.0;
-            let y = top.center().y;
-            self.buttons.push(("file", pos2(x + 40.0, y)));
-            if text_button(ui, Rect::from_center_size(pos2(x + 40.0, y), vec2(80.0, BUTTON)), "Datei", fg).clicked() {
-                let _ = app.run("ui.backstage", json!({"value": true, "page": "home"}));
-            }
-            x = top.max.x - 4.0 - BUTTON / 2.0;
-            for (icon, label, cmd) in [
-                ("more", "Alle Befehle", ""),
-                ("save", "Speichern", "file.save"),
-                ("redo", "Wiederholen", "edit.redo"),
-                ("undo", "Rückgängig", "edit.undo"),
-            ] {
-                let r = Rect::from_center_size(pos2(x, y), Vec2::splat(BUTTON));
-                self.buttons.push((icon, r.center()));
-                if icon_button(ui, r, icon, label, false, fg, accent).clicked() {
-                    if cmd.is_empty() {
-                        self.all_commands = true;
-                    } else {
-                        let _ = app.run(cmd, json!({}));
-                    }
-                }
-                x -= BUTTON;
-            }
+        ui.scope_builder(UiBuilder::new().max_rect(doc), |ui| {
+            ui.set_clip_rect(shown);
+            app.ui(ui)
         });
 
         let state: Value = app.session.run("format.state", &json!({})).unwrap_or_default();
         let on = |k: &str| state.get(k).and_then(Value::as_bool).unwrap_or(false);
-        egui::Area::new(egui::Id::unique("phone_toolbar")).order(egui::Order::Foreground).fixed_pos(toolbar.min).show(ui.ctx(), |ui| {
-            ui.painter().rect(
-                toolbar,
-                CornerRadius::same(30),
-                bg,
-                Stroke::new(1.0, ui.visuals().widgets.noninteractive.bg_stroke.color),
-                egui::StrokeKind::Inside,
-            );
-            let items: [(&str, &str, Option<&str>, bool); 7] = [
-                ("addShape", "Einfügen", None, self.menu == Some(Menu::Insert)),
-                ("bold", "Fett", Some("format.bold"), on("bold")),
-                ("italic", "Kursiv", Some("format.italic"), on("italic")),
-                ("underline", "Unterstrichen", Some("format.underline"), on("underline")),
-                ("highlight", "Hervorheben", None, self.menu == Some(Menu::Highlight)),
-                ("fontcolor", "Schriftfarbe", None, self.menu == Some(Menu::Color)),
-                ("more", "Weitere Befehle", None, false),
-            ];
-            let step = toolbar.width() / items.len() as f32;
-            for (i, (icon, label, cmd, active)) in items.into_iter().enumerate() {
-                let r = Rect::from_center_size(pos2(toolbar.min.x + step * (i as f32 + 0.5), toolbar.center().y), Vec2::splat(BUTTON.min(step)));
-                self.buttons.push((if i == 6 { "toolbarMore" } else { icon }, r.center()));
-                if icon_button(ui, r, icon, label, active, fg, accent).clicked() {
-                    match (i, cmd) {
-                        (_, Some(cmd)) => {
-                            let _ = app.run(cmd, json!({}));
-                        }
-                        (0, None) => self.toggle(Menu::Insert),
-                        (4, None) => self.toggle(Menu::Highlight),
-                        (5, None) => self.toggle(Menu::Color),
-                        _ => self.all_commands = true,
+        let active = |t: Tool, menu: Option<Menu>| match t {
+            Tool::Bold => on("bold"),
+            Tool::Italic => on("italic"),
+            Tool::Underline => on("underline"),
+            Tool::Insert => menu == Some(Menu::Insert),
+            Tool::Highlight => menu == Some(Menu::Highlight),
+            Tool::Color => menu == Some(Menu::Color),
+            _ => false,
+        };
+        let accent = ui.visuals().selection.bg_fill;
+        let line = Stroke::new(1.0, ui.visuals().widgets.noninteractive.bg_stroke.color);
+        let mut pressed = None;
+
+        // The bars above the document, in their own layer so they get the touches first.
+        if !compact {
+            egui::Area::new(egui::Id::unique("phone_top_bar")).order(egui::Order::Foreground).fixed_pos(top.min).show(ui.ctx(), |ui| {
+                ui.set_clip_rect(top);
+                ui.painter().rect_filled(top, 0.0, bg);
+                ui.painter().line_segment([top.left_bottom(), top.right_bottom()], line);
+                let y = top.center().y;
+                if self.tool_button(ui, Rect::from_center_size(pos2(top.min.x + 44.0, y), vec2(80.0, BUTTON)), Tool::File, false, fg, accent) {
+                    pressed = Some(Tool::File);
+                }
+                let mut x = top.max.x - 4.0 - BUTTON / 2.0;
+                for t in [Tool::AllCommands, Tool::Save, Tool::Redo, Tool::Undo] {
+                    if self.tool_button(ui, Rect::from_center_size(pos2(x, y), Vec2::splat(BUTTON)), t, false, fg, accent) {
+                        pressed = Some(t);
                     }
+                    x -= BUTTON;
+                }
+            });
+        }
+        let tools: &[Tool] = if compact { &COMPACT_TOOLS } else { &TOOLBAR_TOOLS };
+        let menu = self.menu;
+        egui::Area::new(egui::Id::unique("phone_toolbar")).order(egui::Order::Foreground).fixed_pos(toolbar.min).show(ui.ctx(), |ui| {
+            let radius = (toolbar.height() / 2.0) as u8;
+            ui.painter().rect(toolbar, CornerRadius::same(radius), bg, line, egui::StrokeKind::Inside);
+            let step = toolbar.width() / tools.len() as f32;
+            for (i, &t) in tools.iter().enumerate() {
+                let centre = pos2(toolbar.min.x + step * (i as f32 + 0.5), toolbar.center().y);
+                let size = if t == Tool::File { vec2(step.min(80.0), BUTTON) } else { Vec2::splat(BUTTON.min(step)) };
+                if self.tool_button(ui, Rect::from_center_size(centre, size), t, active(t, menu), fg, accent) {
+                    pressed = Some(t);
                 }
             }
         });
+        if let Some(t) = pressed {
+            self.run_tool(app, t);
+        }
 
         if let Some(menu) = self.menu {
             let above = Rect::from_min_max(pos2(toolbar.min.x, toolbar.min.y - MARGIN - BUTTON - 16.0), pos2(toolbar.max.x, toolbar.min.y - MARGIN));
@@ -276,6 +357,36 @@ impl Mobile {
                 self.menu = None;
             }
         }
+    }
+
+    /// Draw one button and note its centre for the test; true when it was tapped.
+    fn tool_button(&mut self, ui: &mut Ui, r: Rect, t: Tool, active: bool, fg: Color32, accent: Color32) -> bool {
+        self.buttons.push((t.name(), r.center()));
+        let response = if t == Tool::File { text_button(ui, r, t.label(), fg) } else { icon_button(ui, r, t.icon(), t.label(), active, fg, accent) };
+        response.clicked()
+    }
+
+    fn run_tool(&mut self, app: &mut WordApp, t: Tool) {
+        let command = match t {
+            Tool::File => {
+                let _ = app.run("ui.backstage", json!({"value": true, "page": "home"}));
+                return;
+            }
+            Tool::AllCommands | Tool::More => {
+                self.all_commands = true;
+                return;
+            }
+            Tool::Insert => return self.toggle(Menu::Insert),
+            Tool::Highlight => return self.toggle(Menu::Highlight),
+            Tool::Color => return self.toggle(Menu::Color),
+            Tool::Undo => "edit.undo",
+            Tool::Redo => "edit.redo",
+            Tool::Save => "file.save",
+            Tool::Bold => "format.bold",
+            Tool::Italic => "format.italic",
+            Tool::Underline => "format.underline",
+        };
+        let _ = app.run(command, json!({}));
     }
 
     /// Log every button's centre in screen pixels when the layout changes (for android/test).

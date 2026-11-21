@@ -99,6 +99,12 @@ mod android {
                 // SAFETY: `android` (a clone of the app's AndroidApp) is alive in this thread.
                 if unsafe { crate::config::destroyed(android.activity_as_ptr()) } == Some(true) {
                     log::warn!("the activity is being destroyed and the event loop cannot end: ending the process");
+                    // A restart for a configuration change (not leaving the app): start it again.
+                    // SAFETY: as above.
+                    if unsafe { crate::config::changing_configurations(android.activity_as_ptr()) } == Some(true) {
+                        let asked = unsafe { crate::config::start_again(android.activity_as_ptr()) };
+                        log::info!("restart for a configuration change; started again: {asked}");
+                    }
                     std::thread::sleep(std::time::Duration::from_millis(200));
                     std::process::exit(0);
                 }
@@ -285,7 +291,9 @@ mod android {
             // dp are egui points here (WordCraft's scale follows Android's density, see above).
             let smallest = self.current.map(|c| c.smallest_width_dp as f32);
             self.mobile.ui(&mut self.app, ui, inner, smallest);
-            self.diagnostics(ui, inner);
+            if self.mobile.autotest {
+                self.diagnostics(ui, inner);
+            }
             // The content rectangle changes without an input event (keyboard shown, rotation).
             ui.ctx().request_repaint_after(std::time::Duration::from_millis(500));
         }
